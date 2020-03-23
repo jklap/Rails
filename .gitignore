@@ -1,14 +1,30 @@
 # maven build directory
 /target/
 
+# gradle build directory
+/build/
+
 # eclipse specific files
 /.settings/
-
 .project
 .classpath
 
 # IntelliJ specific files
-.idea/
+/.idea/artifacts/
+/.idea/libraries/
+/.idea/tabsession.xml
+/.idea/workspace.xml
+/.idea/dataSources/
+/.idea/dataSources.local.xml
+/.idea/shelf/
+/.idea/httpRequests/
+/.idea/sonarlint/
+/.idea/usage.statistics.xml
+/.idea/misc.xml
+/.idea/vcs.xml
+# not 100% sure about the following but seems they would get created as needed by IntellJ
+/.idea/gradle.xml
+/.idea/jarRepositories.xml
 rails.iml
 
 # rails log files
@@ -28,3 +44,6 @@ rails.iml
 /classes/
 
 /.gradle/
+
+# Mac OS
+/.DS_Store
