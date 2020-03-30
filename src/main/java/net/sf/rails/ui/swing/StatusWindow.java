@@ -132,6 +132,20 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
         moderatorMenu.setMnemonic(KeyEvent.VK_M);
         specialMenu.setMnemonic(KeyEvent.VK_S);
 
+        actionMenuItem = new ActionMenuItem("New");
+        actionMenuItem.setActionCommand("New");
+        actionMenuItem.addActionListener(this);
+        actionMenuItem.setEnabled(false);
+        actionMenuItem.setPossibleAction(new GameAction(gameUIManager.getRoot(), GameAction.Mode.NEW));
+        fileMenu.add(actionMenuItem);
+
+        actionMenuItem = new ActionMenuItem("Load");
+        actionMenuItem.setActionCommand("Load");
+        actionMenuItem.addActionListener(this);
+        actionMenuItem.setEnabled(false);
+        actionMenuItem.setPossibleAction(new GameAction(gameUIManager.getRoot(), GameAction.Mode.LOAD));
+        fileMenu.add(actionMenuItem);
+
         actionMenuItem = new ActionMenuItem(LocalText.getText("SAVE"));
         actionMenuItem.setActionCommand(SAVE_CMD);
         actionMenuItem.setMnemonic(KeyEvent.VK_S);
@@ -430,7 +444,6 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
     }
 
     public void setCorrectionMenu() {
-
         // Update the correction  menu
         correctionMenu.removeAll();
         correctionMenu.setEnabled(false);
@@ -453,7 +466,6 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
     }
 
     public boolean setupFor(RoundFacade round) {
-
         currentRound = round;
 
         if (round instanceof StartRound) {
@@ -519,8 +531,7 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
         }
 
         // New special action handling
-        List<ActionMenuItem> specialActionItems =
-            new ArrayList<ActionMenuItem>();
+        List<ActionMenuItem> specialActionItems = new ArrayList<ActionMenuItem>();
 
         // Special properties
         List<UseSpecialProperty> sps =
@@ -676,6 +687,10 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
             ;
         } else if (executedAction instanceof GameAction) {
             switch (((GameAction) executedAction).getMode()) {
+            case NEW:
+                break;
+            case LOAD:
+                break;
             case SAVE:
                 gameUIManager.saveGame((GameAction) executedAction);
                 break;
