@@ -55,7 +55,6 @@ public class GameSetupController {
     // UI references
     private final GameSetupWindow window;
     private ConfigWindow configWindow;
-    private GameUIManager gameUIManager;
 
     // Actions
     private final ActionListener newAction = new NewAction();
@@ -164,7 +163,7 @@ public class GameSetupController {
 
             RailsRoot railsRoot = null;
             try {
-                GameData gameData = GameData.create(selectedGame, selectedOptions, players);
+                GameData gameData = GameData.create(selectedGame, selectedOptions, players, window.getUsersGameName());
                 railsRoot = RailsRoot.create(gameData);
             } catch (ConfigurationException e) {
                 log.error("unable to continue", e);
@@ -180,7 +179,7 @@ public class GameSetupController {
                 System.exit(-1);
             }
             prepareGameUIInit();
-            gameUIManager = GameLoader.startGameUIManager (railsRoot, false, splashWindow);
+            GameUIManager gameUIManager = GameLoader.startGameUIManager(railsRoot, false, splashWindow);
             gameUIManager.gameUIInit(true); // true indicates new game
 
             gameUIManager.notifyOfSplashFinalization();
@@ -434,7 +433,7 @@ public class GameSetupController {
     }
 
     public static class Builder {
-        private SortedSet<GameInfo> gameList = Sets.newTreeSet();
+        private final SortedSet<GameInfo> gameList = Sets.newTreeSet();
         private String credits = "Credits";
 
         private Builder() {}

@@ -148,9 +148,17 @@ public class GameLoader {
         String gameName = (String) ois.readObject();
         log.debug("Saved game={}", gameName);
 
+        String usersGameName = null;
+        object = ois.readObject();
+        if ( object instanceof String ) {
+            // read user's game name
+            usersGameName = (String) object;
+            object = ois.readObject();
+        }
+
         // read default and saved game options
         GameOptionsSet.Builder gameOptions = loadDefaultGameOptions(gameName);
-        Map<String, String> savedOptions = (Map<String, String>) ois.readObject();
+        Map<String, String> savedOptions = (Map<String, String>) object;
         log.debug("Saved game options = {}", savedOptions);
 
         for (GameOption option : gameOptions.getOptions()) {
@@ -184,7 +192,7 @@ public class GameLoader {
         log.debug("Player names = {}", playerNames);
         GameInfo game = GameInfo.builder().withName(gameName).build();
 
-        gameIOData.setGameData(GameData.create(game, gameOptions, playerNames));
+        gameIOData.setGameData(GameData.create(game, gameOptions, playerNames, usersGameName));
     }
 
     /**

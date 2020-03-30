@@ -45,14 +45,15 @@ public class GameSetupWindow extends JDialog {
     private final JComboBox<String> configureBox = new JComboBox<String>();
     private final JComboBox<String> gameNameBox = new JComboBox<String>();
 
+    private final JTextField gameName = new JTextField();
+
     private static class PlayerInfo {
         private final JLabel number = new JLabel();
         private final JTextField name = new JTextField();
     }
     private final List<PlayerInfo> players = Lists.newArrayList();
 
-    private final SortedMap<GameOption, JComponent> optionComponents =
-            Maps.newTreeMap();
+    private final SortedMap<GameOption, JComponent> optionComponents = Maps.newTreeMap();
 
     private final GameSetupController controller;
 
@@ -211,7 +212,7 @@ public class GameSetupWindow extends JDialog {
         );
     }
 
-    void toggleOptions() {
+    private void toggleOptions() {
         if (optionsPane.isVisible()) {
             optionsPane.setVisible(false);
             optionButton.setText(LocalText.getText("OPTIONS"));
@@ -222,7 +223,7 @@ public class GameSetupWindow extends JDialog {
     }
 
     // TODO: Rewrite Options mechanism to allow for common options
-    void initOptions(GameInfo selectedGame) {
+    protected void initOptions(GameInfo selectedGame) {
         // clear all previous options
         optionsPane.removeAll();
         optionComponents.clear();
@@ -278,14 +279,14 @@ public class GameSetupWindow extends JDialog {
         }
     }
 
-    void hideOptions() {
+    protected void hideOptions() {
         optionsPane.setVisible(false);
         optionsPane.removeAll();
         optionComponents.clear();
         optionButton.setText(LocalText.getText("OPTIONS"));
     }
 
-    void initPlayersPane(GameInfo selectedGame) {
+    protected void initPlayersPane(GameInfo selectedGame) {
         playersPane.setVisible(false);
 
         // Remember names that have already been filled-in...
@@ -310,8 +311,12 @@ public class GameSetupWindow extends JDialog {
         int maxPlayers = selectedGame.getMaxPlayers();
         int minPlayers = selectedGame.getMinPlayers();
 
-        playersPane.setLayout(new GridLayout(maxPlayers + 1, 0, 0, 2));
+        playersPane.setLayout(new GridLayout(maxPlayers + 2, 0, 0, 2));
         playersPane.setBorder(BorderFactory.createLoweredBevelBorder());
+
+        playersPane.add(new JLabel("Game Name (optional):"));
+        playersPane.add(gameName);
+
         playersPane.add(new JLabel("Players:"));
 
         playersPane.add(randomizeButton);
@@ -360,20 +365,24 @@ public class GameSetupWindow extends JDialog {
         playersPane.setVisible(true);
     }
 
-    GameInfo getSelectedGame() {
+    public GameInfo getSelectedGame() {
         return controller.getGameList().get(gameNameBox.getSelectedIndex());
     }
 
-    String getPlayerName(int i) {
+    public String getUsersGameName() {
+        return gameName.getText();
+    }
+
+    public String getPlayerName(int i) {
         PlayerInfo player = players.get(i);
         return player.name.getText();
     }
 
-    int getPlayerCount() {
+    public int getPlayerCount() {
         return getPlayers().size();
     }
 
-    ImmutableList<String> getPlayers() {
+    public ImmutableList<String> getPlayers() {
         ImmutableList.Builder<String> playerList = ImmutableList.builder();
         for (PlayerInfo player:players) {
             String name = player.name.getText();
@@ -384,7 +393,7 @@ public class GameSetupWindow extends JDialog {
         return playerList.build();
     }
 
-    void setPlayers(List<String> newPlayers) {
+    public void setPlayers(List<String> newPlayers) {
         LinkedList<String> newPlayersCopy = Lists.newLinkedList(newPlayers);
         for (PlayerInfo player:players) {
             if (newPlayersCopy.isEmpty()) {
@@ -395,23 +404,23 @@ public class GameSetupWindow extends JDialog {
         }
     }
 
-    void enablePlayer(Integer playerNr) {
+    protected void enablePlayer(Integer playerNr) {
         final PlayerInfo player = players.get(playerNr);
         player.name.setEnabled(true);
         player.number.setForeground(Color.BLACK);
     }
 
-    void disablePlayer(Integer playerNr) {
+    protected void disablePlayer(Integer playerNr) {
         PlayerInfo player = players.get(playerNr);
         player.name.setEnabled(false);
         player.number.setForeground(Color.GRAY);
     }
 
-    boolean isPlayerEnabled(Integer playerNr) {
+    protected boolean isPlayerEnabled(Integer playerNr) {
         return players.get(playerNr).name.isEnabled();
     }
 
-    void setFocus(Integer playerNr) {
+    protected void setFocus(Integer playerNr) {
         final PlayerInfo focus = players.get(playerNr);
         EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -420,11 +429,11 @@ public class GameSetupWindow extends JDialog {
         });
     }
 
-    boolean areOptionsVisible() {
+    protected boolean areOptionsVisible() {
         return optionsPane.isVisible();
     }
 
-    String getSelectedGameOption(GameOption option) {
+    public String getSelectedGameOption(GameOption option) {
         if (option.isBoolean()) {
             JCheckBox checkbox = (JCheckBox) optionComponents.get(option);
             return checkbox.isSelected() ? "yes" : "no";
@@ -434,15 +443,15 @@ public class GameSetupWindow extends JDialog {
         }
     }
 
-    void addConfigureProfile(String profile) {
+    public void addConfigureProfile(String profile) {
         configureBox.addItem(profile);
     }
 
-    void removeConfigureProfile(String profile) {
+    public void removeConfigureProfile(String profile) {
         configureBox.removeItem(profile);
     }
 
-    void changeConfigureProfile(String profile) {
+    public void changeConfigureProfile(String profile) {
         configureBox.setSelectedItem(profile);
     }
 
