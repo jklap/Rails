@@ -132,8 +132,7 @@ public class PublicCompany extends RailsAbstractItem implements Company, RailsMo
     /**
      * Company treasury, holding cash
      */
-    protected final PurseMoneyModel treasury =
-            PurseMoneyModel.create(this, "treasury", false);
+    protected final PurseMoneyModel treasury = PurseMoneyModel.create(this, "treasury", false);
 
     /**
      * PresidentModel
@@ -422,7 +421,6 @@ public class PublicCompany extends RailsAbstractItem implements Company, RailsMo
      * element
      */
     public void configureFromXML(Tag tag) throws ConfigurationException {
-
         longName = tag.getAttributeAsString("longname", getId());
         infoText = "<html>" + longName;
 
@@ -452,16 +450,14 @@ public class PublicCompany extends RailsAbstractItem implements Company, RailsMo
 
         numberOfBaseTokens = tag.getAttributeAsInteger("tokens", 1);
 
-        certsAreInitiallyAvailable
-                = tag.getAttributeAsBoolean("available", certsAreInitiallyAvailable);
+        certsAreInitiallyAvailable = tag.getAttributeAsBoolean("available", certsAreInitiallyAvailable);
 
         canBeRestarted = tag.getAttributeAsBoolean("restartable", canBeRestarted);
 
         Tag shareUnitTag = tag.getChild("ShareUnit");
         if (shareUnitTag != null) {
             shareUnit.set(shareUnitTag.getAttributeAsInteger("percentage", DEFAULT_SHARE_UNIT));
-            shareUnitsForSharePrice
-                    = shareUnitTag.getAttributeAsInteger("sharePriceUnits", shareUnitsForSharePrice);
+            shareUnitsForSharePrice = shareUnitTag.getAttributeAsInteger("sharePriceUnits", shareUnitsForSharePrice);
         }
 
         Tag homeBaseTag = tag.getChild("Home");
@@ -519,9 +515,7 @@ public class PublicCompany extends RailsAbstractItem implements Company, RailsMo
             splitAlways = split.equalsIgnoreCase("always");
             splitAllowed = split.equalsIgnoreCase("allowed");
 
-            payoutMustExceedPriceToMove =
-                    payoutTag.getAttributeAsBoolean("mustExceedPriceToMove",
-                            false);
+            payoutMustExceedPriceToMove = payoutTag.getAttributeAsBoolean("mustExceedPriceToMove", false);
         }
 
         Tag ownSharesTag = tag.getChild("TreasuryCanHoldOwnShares");
@@ -529,34 +523,27 @@ public class PublicCompany extends RailsAbstractItem implements Company, RailsMo
             canHoldOwnShares = true;
             treasuryPaysOut = true;
 
-            maxPercOfOwnShares =
-                    ownSharesTag.getAttributeAsInteger("maxPerc",
-                            maxPercOfOwnShares);
+            maxPercOfOwnShares = ownSharesTag.getAttributeAsInteger("maxPerc", maxPercOfOwnShares);
         }
 
         Tag trainsTag = tag.getChild("Trains");
         if (trainsTag != null) {
             trainLimit = trainsTag.getAttributeAsIntegerList("limit");
-            mustOwnATrain =
-                    trainsTag.getAttributeAsBoolean("mandatory", mustOwnATrain);
+            mustOwnATrain = trainsTag.getAttributeAsBoolean("mandatory", mustOwnATrain);
         }
 
         Tag initialTrainTag = tag.getChild("InitialTrain");
         if (initialTrainTag != null) {
             initialTrainType = initialTrainTag.getAttributeAsString("type");
-            initialTrainCost = initialTrainTag.getAttributeAsInteger("cost",
-                    initialTrainCost);
-            initialTrainTradeable = initialTrainTag.getAttributeAsBoolean("tradeable",
-                    initialTrainTradeable);
+            initialTrainCost = initialTrainTag.getAttributeAsInteger("cost", initialTrainCost);
+            initialTrainTradeable = initialTrainTag.getAttributeAsBoolean("tradeable", initialTrainTradeable);
         }
 
         Tag firstTrainTag = tag.getChild("FirstTrainCloses");
         if (firstTrainTag != null) {
-            String typeName =
-                    firstTrainTag.getAttributeAsString("type", "Private");
+            String typeName = firstTrainTag.getAttributeAsString("type", "Private");
             if (typeName.equalsIgnoreCase("Private")) {
-                privateToCloseOnFirstTrainName =
-                        firstTrainTag.getAttributeAsString("name");
+                privateToCloseOnFirstTrainName = firstTrainTag.getAttributeAsString("name");
             } else {
                 throw new ConfigurationException(
                         "Only Privates can be closed on first train buy");
@@ -574,8 +561,7 @@ public class PublicCompany extends RailsAbstractItem implements Company, RailsMo
             } else if (capType.equalsIgnoreCase("whenBought")) {
                 setCapitalisation(CAPITALISE_WHEN_BOUGHT);
             } else {
-                throw new ConfigurationException(
-                        "Invalid capitalisation type: " + capType);
+                throw new ConfigurationException("Invalid capitalisation type: " + capType);
             }
         }
 
@@ -659,7 +645,6 @@ public class PublicCompany extends RailsAbstractItem implements Company, RailsMo
                     ("mustTradeTrainsAtFixedPrice", mustTradeTrainsAtFixedPrice);
             canClose = optionsTag.getAttributeAsBoolean("canClose", canClose);
         }
-
     }
 
 

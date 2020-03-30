@@ -138,7 +138,7 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
         actionMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.ALT_MASK));
         actionMenuItem.addActionListener(this);
         actionMenuItem.setEnabled(true);
-        actionMenuItem.setPossibleAction(new GameAction(GameAction.Mode.SAVE));
+        actionMenuItem.setPossibleAction(new GameAction(gameUIManager.getRoot(), GameAction.Mode.SAVE));
         fileMenu.add(actionMenuItem);
 
         actionMenuItem = new ActionMenuItem(LocalText.getText("Reload"));
@@ -147,7 +147,7 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
         actionMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.ALT_MASK));
         actionMenuItem.addActionListener(this);
         actionMenuItem.setEnabled(true);
-        actionMenuItem.setPossibleAction(new GameAction(GameAction.Mode.RELOAD));
+        actionMenuItem.setPossibleAction(new GameAction(gameUIManager.getRoot(), GameAction.Mode.RELOAD));
         fileMenu.add(actionMenuItem);
 
         menuItem = new JMenuItem(LocalText.getText("AutoSaveLoad"));
