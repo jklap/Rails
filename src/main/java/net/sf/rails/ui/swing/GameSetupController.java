@@ -137,12 +137,7 @@ public class GameSetupController {
 
         public void actionPerformed(ActionEvent e) {
             //start in new thread so that swing thread is not used for game setup
-            new Thread() {
-                @Override
-                public void run() {
-                    startNewGame();
-                }
-            }.start();
+            new Thread(this::startNewGame).start();
         }
 
         private void startNewGame() {
@@ -218,14 +213,10 @@ public class GameSetupController {
             File saveDirectory = new File(Config.get("save.directory"));
 
             // define recent files
-            SortedSet<File> recentFiles = new TreeSet<File>(new Comparator<File> (){
-                public int compare (File a, File b) {
-                    return ComparisonChain.start()
-                            .compare(b.lastModified(), a.lastModified())
-                            .compare(a.getName(), b.getName())
-                            .result();
-                }
-            });
+            SortedSet<File> recentFiles = new TreeSet<>((a, b) -> ComparisonChain.start()
+                    .compare(b.lastModified(), a.lastModified())
+                    .compare(a.getName(), b.getName())
+                    .result());
 
             // define saved file extension
             String savedFileExtension = Config.get("save.filename.extension");
@@ -236,7 +227,7 @@ public class GameSetupController {
 
             // get recent files
             getRecentFiles(recentFiles, saveDirectory, savedFileExtension);
-            if (recentFiles == null || recentFiles.size() == 0) return;
+            if ( recentFiles.size() == 0 ) return;
             File[] files = recentFiles.toArray(new File[]{});
 
             int numOptions = 20;
@@ -263,7 +254,6 @@ public class GameSetupController {
             } else { // cancel pressed
                 return;
             }
-
         }
 
         private void getRecentFiles (SortedSet<File> recentFiles, File dir, String savedFileExtension) {

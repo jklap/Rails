@@ -146,7 +146,7 @@ public class GameLoader {
 
         // read name of saved game
         String gameName = (String) ois.readObject();
-        log.debug("Saved game={}", gameName);
+        log.debug("Saved game: {}", gameName);
 
         String usersGameName = null;
         object = ois.readObject();

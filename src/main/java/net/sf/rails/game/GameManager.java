@@ -115,9 +115,7 @@ public class GameManager extends RailsManager implements Configurable, Owner {
      */
     protected GuiHints guiHints;
 
-    /**
-     * Flags to be passed to the UI, aiding the layout definition
-     */
+    /** Flags to be passed to the UI, aiding the layout definition */
     protected final EnumMap<GuiDef.Parm, Boolean> guiParameters = new EnumMap<>(GuiDef.Parm.class);
 
     protected GenericState<StartPacket> startPacket = new GenericState<>(this, "startPacket");
@@ -697,7 +695,6 @@ public class GameManager extends RailsManager implements Configurable, Owner {
         if (action instanceof NullAction && ((NullAction) action).getMode() == NullAction.Mode.START_GAME) {
             // Skip processing at game start after Load.
             // We're only here to create PossibleActions.
-            result = true;
             startGameAction = true;
         } else if (action != null) {
             // Should never be null.
@@ -766,7 +763,7 @@ public class GameManager extends RailsManager implements Configurable, Owner {
 
         // logging of game actions activated
         for (PossibleAction pa : possibleActions.getList()) {
-            log.debug("{} may: {}", getCurrentPlayer().getId(), pa.toString());
+            log.debug("{}", pa.toString());
         }
 
         return result;
@@ -967,20 +964,10 @@ public class GameManager extends RailsManager implements Configurable, Owner {
         GameLoader gameLoader = new GameLoader();
         String filepath = reloadAction.getFilepath();
 
-
         if (!gameLoader.reloadGameFromFile(getRoot(), new File(filepath))) {
             return false;
         }
 
-       /*  followed by actions and comments
-        try{
-            gameLoader.loadGameData(new File(filepath));
-            gameLoader.convertGameData();
-        } catch (Exception e)  {
-            log.error("Load failed", e);
-            DisplayBuffer.add(this, LocalText.getText("LOAD_FAILED_MESSAGE", e.getMessage()));
-        }
-*/
         log.debug("Starting to compare loaded actions");
 
         /* gameLoader actions get compared to the executed actions of the current game */
@@ -1039,7 +1026,6 @@ public class GameManager extends RailsManager implements Configurable, Owner {
             return true;
         }
 
-
         setReloading(false);
         finishLoading();
 
@@ -1050,7 +1036,6 @@ public class GameManager extends RailsManager implements Configurable, Owner {
         log.info("Reloading finished");
         return true;
     }
-
 
     protected boolean export(GameAction exportAction) {
 
