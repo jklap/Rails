@@ -18,7 +18,7 @@ import net.sf.rails.game.state.Item;
 
 public final class Util {
 
-    private static Logger log = LoggerFactory.getLogger(Util.class);;
+    private static final Logger log = LoggerFactory.getLogger(Util.class);
 
     /**
      * No-args private constructor, to prevent (meaningless) construction of one
