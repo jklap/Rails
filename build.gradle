@@ -3,7 +3,7 @@
 import java.text.SimpleDateFormat
 
 plugins {
-  id 'java'
+  id 'application'
   id 'maven-publish'
   // https://github.com/johnrengelman/shadow
   id 'com.github.johnrengelman.shadow' version '5.2.0'
@@ -13,17 +13,21 @@ plugins {
   // https://github.com/n0mer/gradle-git-properties
   id 'com.gorylenko.gradle-git-properties' version '2.2.2'
   // https://github.com/TheBoegl/gradle-launch4j
-  id 'edu.sc.seis.launch4j' version '2.4.6'
+//  id 'edu.sc.seis.launch4j' version '2.4.6'
   // https://github.com/crotwell/gradle-macappbundle
-  id 'edu.sc.seis.macAppBundle' version '2.3.0'
+//  id 'edu.sc.seis.macAppBundle' version '2.3.0'
   // https://github.com/nebula-plugins/gradle-ospackage-plugin
   //id "nebula.rpm" version "8.2.0"
   //id "nebula.deb" version "8.2.0"
-  id 'nebula.ospackage' version '8.2.0'
+//  id 'nebula.ospackage' version '8.2.0'
   // https://openjfx.io/openjfx-docs/#gradle
   id 'org.openjfx.javafxplugin' version '0.0.8'
   id 'jacoco'
   id 'org.sonarqube' version '2.8'
+  // https://badass-runtime-plugin.beryx.org/releases/latest/#introduction
+  id 'org.beryx.runtime' version '1.8.0'
+  //
+  //id 'org.beryx.jlink' version '2.17.4'
 }
 
 repositories {
@@ -40,6 +44,7 @@ version = '2.2-alpha'
 description = 'Rails (18xx)'
 
 //def railsCodebase = 'rails.sourceforge.net'
+mainClassName = 'net.sf.rails.util.RunGame'
 def railsMainClass = 'net.sf.rails.util.RunGame'
 def railsVendor = 'Rails project'
 //def railsHomepage = 'http://rails.sf.net'
@@ -71,18 +76,23 @@ dependencies {
     implementation 'org.jgrapht:jgrapht-core:1.4.0'
     implementation 'org.jgrapht:jgrapht-ext:1.4.0'
     implementation 'org.slf4j:slf4j-api:1.7.30'
-    implementation 'org.apache.xmlgraphics:batik-bridge:1.12'
-    implementation 'org.apache.xmlgraphics:batik-transcoder:1.12'
+    implementation('org.apache.xmlgraphics:batik-bridge:1.12') {
+        //exclude group: 'xml-apis', module: 'xml-apis-ext'
+    }
+    implementation('org.apache.xmlgraphics:batik-transcoder:1.12') {
+        //exclude group: 'xml-apis', module: 'xml-apis-ext'
+    }
     implementation 'org.apache.xmlgraphics:batik-svggen:1.12'
     implementation 'org.apache.xmlgraphics:batik-ext:1.12'
-    implementation 'org.apache.xmlgraphics:batik-swing:1.12'
+    implementation('org.apache.xmlgraphics:batik-swing:1.12') {
+        //exclude group: 'xml-apis', module: 'xml-apis-ext'
+    }
     implementation 'javazoom:jlayer:1.0.1'
     implementation 'ch.qos.logback:logback-classic:1.2.3'
     implementation 'com.google.guava:guava:23.0'
     implementation 'net.java.dev.designgridlayout:designgridlayout:1.11'
     implementation 'org.dockingframes:docking-frames-common:1.1.1'
     implementation 'com.googlecode.combinatoricslib:combinatoricslib:2.2'
-    //implementation 'org.openjfx:javafx-controls:14'
     implementation 'org.apache.httpcomponents:httpclient:4.5.12'
     implementation 'org.apache.commons:commons-lang3:3.10'
     implementation 'org.apache.commons:commons-text:1.8'
@@ -108,6 +118,11 @@ jar {
                 'Main-Class': "${railsMainClass}"
         )
     }
+}
+
+application {
+    mainClassName = "${railsMainClass}"
+    applicationName = 'rails'
 }
 
 test {
@@ -152,52 +167,132 @@ gitProperties {
     customProperty 'develop', 'true'
 }
 
-launch4j {
-    mainClassName = "${railsMainClass}"
-    jar = "${buildDir}/libs/${project.name}-${project.version}-all.jar"
-    outfile = "${project.name}-${project.version}.exe"
-    icon = "../../${buildFilesDir}/${railsIcon}"
-    textVersion = {  project.version.replace('alpha','98.').replace('beta','99.').replace('RC','100.') }
-    copyright = "${railsCopyright}"
-    companyName = "${railsVendor}"
-    description = "${railsDescription}"
-    productName = "${project.name}"
-    internalName = "${project.name}"
+//launch4j {
+//    mainClassName = "${railsMainClass}"
+//    jar = "${buildDir}/libs/${project.name}-${project.version}-all.jar"
+//    outfile = "${project.name}-${project.version}.exe"
+//    icon = "../../${buildFilesDir}/${railsIcon}"
+//    textVersion = {  project.version.replace('alpha','98.').replace('beta','99.').replace('RC','100.') }
+//    copyright = "${railsCopyright}"
+//    companyName = "${railsVendor}"
+//    description = "${railsDescription}"
+//    productName = "${project.name}"
+//    internalName = "${project.name}"
+//}
+
+//macAppBundle {
+//    mainClassName = "${railsMainClass}"
+//    icon = "../../${buildFilesDir}/${railsIcon}"
+//    //javaProperties.put('CFBundleDocumentTypes', 'true')
+//    runtimeConfigurationName = 'shadow'
+//    jarTask = 'shadowJar'
+//    bundleExtras.put('CFBundleDocumentTypes',
+//        [
+//            'CFBundleTypeExtensions' : [ 'rails' ],
+//            'CFBundleTypeName' : 'public.rails',
+//            'CFBundleTypeRole' : 'Editor',
+//            'CFBundleTypeIconFile' : 'app.icns',
+//            'LSItemContentTypes' : ['public.rails']
+//        ])
+//}
+
+//ospackage {
+//    release = '1'
+//    os = 'LINUX'
+//    packageGroup = 'Amusements/Games'
+//    packageDescription = ''
+//    requires('jdk', '1.8', GREATER | EQUAL)
+//
+//    from('src/scripts/rails-18xx') {
+//        into '/usr/bin/'
+//        fileMode 0555
+//    }
+//    from(jar.outputs.files) {
+//        // TODO: needs to be the shadow jar
+//        into '/usr/lib/rails-18xx/'
+//    }
+//    from('src/scripts/rails-18xx.desktop') {
+//        into '/usr/share/applications/'
+//    }
+//    from('./src/main/resources/build/rails.png') {
+//        into '/usr/share/pixmaps/'
+//    }
+//}
+
+//jlink {
+//    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+//    launcher {
+//        name = 'Rails'
+//    }
+//    mergedModule {
+//        //provides 'java.sql.Driver' with 'org.hsqldb.jdbc.JDBCDriver'
+//        //excludeRequires 'org.apache.bsf'
+//        excludeUses 'com.google.common.base.PatternCompiler'
+//        excludeProvides servicePattern: 'org.apache.bsf.*'
+//        excludeProvides servicePattern: 'org.apache.xalan.extensions.bsf.*'
+//        excludeProvides service: 'javax.servlet.ServletContainerInitializer'
+//    }
+//    jpackage {
+//        installerOptions = [
+//            '--description', project.description,
+//            '--copyright', 'Copyrigth 2020'
+//        ]
+//        installerType = project.findProperty('installerType') // we will pass this from the command line (example: -PinstallerType=msi)
+//        if (installerType == 'msi') {
+//            imageOptions += ['--icon', 'src/main/resources/pdfdecorator/gui/icon.ico']
+//            installerOptions += [
+//                '--win-per-user-install', '--win-dir-chooser',
+//                '--win-menu', '--win-shortcut'
+//            ]
+//        }
+//        if (installerType == 'pkg') {
+//            imageOptions += ['--icon', 'src/main/resources/pdfdecorator/gui/icon.icns']
+//        }
+//        if (installerType in ['deb', 'rpm']) {
+//            imageOptions += ['--icon', 'src/main/resources/pdfdecorator/gui/icon_256x256.png']
+//            installerOptions += [
+//                '--linux-menu-group', 'Office',
+//                '--linux-shortcut'
+//            ]
+//        }
+//        if (installerType == 'deb') {
+//            installerOptions += [
+//                '--linux-deb-maintainer', 'office@walczak.it'
+//            ]
+//        }
+//        if (installerType == 'rpm') {
+//            installerOptions += [
+//                '--linux-rpm-license-type', 'GPLv3'
+//            ]
+//        }
+//    }
+//}
+
+//jpackage {
+//    doFirst {
+//        project.getProperty('installerType') // throws exception if its missing
+//    }
+//}
+
+runtime {
+    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+    modules = [
+        'java.desktop',
+        'java.logging',
+        'java.xml',
+        'java.datatransfer',
+        'jdk.xml.dom',
+        'jdk.unsupported',
+        'java.prefs',
+        'java.security.jgss',
+        'jdk.jfr']
+    jpackage {
+        if ( org.gradle.internal.os.OperatingSystem.current().windows ) {
+            installerType = 'msi'
+            installerOptions = ['--win-per-user-install', '--win-dir-chooser', '--win-menu', '--win-shortcut']
+        }
+    }
 }
-
-macAppBundle {
-    mainClassName = "${railsMainClass}"
-    icon = "../../${buildFilesDir}/${railsIcon}"
-    javaProperties.put("apple.laf.useScreenMenuBar", "true")
-    //runtimeConfigurationName = 'shadow'
-    //jarTask = 'shadowJar'
-}
-
-ospackage {
-    release = '1'
-    os = 'LINUX'
-    packageGroup = 'Amusements/Games'
-    packageDescription = ''
-    requires('jdk', '1.8', GREATER | EQUAL)
-
-    from('src/scripts/rails-18xx') {
-        into '/usr/bin/'
-        fileMode 0555
-    }
-    from(jar.outputs.files) {
-        // TODO: needs to be the shadow jar
-        into '/usr/lib/rails-18xx/'
-    }
-    from('src/scripts/rails-18xx.desktop') {
-        into '/usr/share/applications/'
-    }
-    from('./src/main/resources/build/rails.png') {
-        into '/usr/share/pixmaps/'
-    }
-}
-
-//buildRpm.dependsOn shadowJar
-
 
 def isNonStable = { String version ->
   def stableKeyword = ['RELEASE', 'FINAL', 'GA'].any { it -> version.toUpperCase().contains(it) }
