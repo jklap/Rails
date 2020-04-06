@@ -177,9 +177,7 @@ public final class Util {
     }
 
     public static Logger getLogger () {
-        if (log == null) log = LoggerFactory.getLogger(Util.class);
         return log;
-
     }
 
     public static String lowerCaseFirst (String text) {
