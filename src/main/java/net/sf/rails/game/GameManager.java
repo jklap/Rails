@@ -1000,6 +1000,7 @@ public class GameManager extends RailsManager implements Configurable, Owner {
                 if (index < executedActions.size()) {
                     executedAction = executedActions.get(index);
                     if (!savedAction.equalsAsAction(executedAction)) {
+                        log.warn("loaded action {} is not the same as expected game action {}", savedAction, executedAction);
                         DisplayBuffer.add(this, LocalText.getText("LoadFailed",
                                 "loaded action \"" + savedAction.toString()
                                         + "\"<br>   is not same as game action \"" + executedAction.toString()
