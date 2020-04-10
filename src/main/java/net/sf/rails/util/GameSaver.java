@@ -76,6 +76,7 @@ public class GameSaver {
             oos.writeObject(gameIOData.getVersion());
             oos.writeObject(gameIOData.getDate());
             oos.writeObject(gameIOData.getFileVersionID());
+//            oos.writeObject(gameIOData.getSaveIncrement(true));
             oos.writeObject(gameIOData.getGameData().getGameName());
             if ( StringUtils.isNotBlank(gameIOData.getGameData().getUsersGameName()) ) {
                 oos.writeObject(gameIOData.getGameData().getUsersGameName());

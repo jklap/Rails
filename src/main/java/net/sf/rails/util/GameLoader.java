@@ -133,19 +133,25 @@ public class GameLoader {
         }
 
         // read versionID for serialization compatibility
-        long fileVersionID = (Long) object;
+        long fileVersionID = (long) object;
         log.debug("Saved versionID={} (object={})", fileVersionID, object);
         gameIOData.setFileVersionID(fileVersionID);
         long saveFileVersionID = GameSaver.saveFileVersionID;
 
         if (fileVersionID != saveFileVersionID) {
-            throw new Exception("Save version " + fileVersionID
-                    + " is incompatible with current version "
-                    + saveFileVersionID);
+            throw new Exception("Save version " + fileVersionID + " is incompatible with current version " + saveFileVersionID);
+        }
+
+        long saveIncrement = 0;
+        object = ois.readObject();
+        if ( object instanceof Long ) {
+            // saved action count
+            saveIncrement = (long) object;
+            object = ois.readObject();
         }
 
         // read name of saved game
-        String gameName = (String) ois.readObject();
+        String gameName = (String) object;
         log.debug("Saved game: {}", gameName);
 
         String usersGameName = null;
@@ -193,6 +199,7 @@ public class GameLoader {
         GameInfo game = GameInfo.builder().withName(gameName).build();
 
         gameIOData.setGameData(GameData.create(game, gameOptions, playerNames, usersGameName));
+        gameIOData.setSaveIncrement(saveIncrement);
     }
 
     /**

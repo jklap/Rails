@@ -17,7 +17,9 @@ class GameIOData {
     private String date;
     private long fileVersionID;
     private List<PossibleAction> actions;
-    
+
+    private long saveIncrement = 0;
+
     GameIOData(GameData gameData, String version, String date, Long fileVersionID, List<PossibleAction> actions) {
         this.gameData = gameData;
         this.version = version;
@@ -25,42 +27,53 @@ class GameIOData {
         this.fileVersionID = fileVersionID;
         this.actions = actions;
     }
-    
+
     GameIOData() {}
-    
-    
+
+
     void setGameData(GameData gameData) {
         this.gameData = gameData;
     }
-    
+
     GameData getGameData() {
         return gameData;
     }
-    
+
     void setVersion(String version) {
         this.version = version;
     }
-    
+
     String getVersion() {
         return version;
     }
-    
+
     void setDate(String date) {
         this.date = date;
     }
-    
+
     String getDate() {
         return date;
     }
-    
+
     void setFileVersionID(long fileVersionID) {
         this.fileVersionID = fileVersionID;
     }
-    
+
     long getFileVersionID() {
         return fileVersionID;
     }
-    
+
+    public long getSaveIncrement(boolean increment) {
+        if ( increment ) {
+            saveIncrement++;
+        }
+        return saveIncrement;
+    }
+
+    public void setSaveIncrement(long saveIncrement) {
+        this.saveIncrement = saveIncrement;
+    }
+
     void setActions(List<PossibleAction> actions) {
         this.actions = actions;
     }
