@@ -20,7 +20,7 @@ public abstract class LayToken extends PossibleORAction {
     /*--- Preconditions ---*/
 
     /** Where to lay a token (null means anywhere) */
-    transient protected List<MapHex> locations = null;
+    transient protected List<MapHex> locations;
     protected String locationNames;
 
     /**
