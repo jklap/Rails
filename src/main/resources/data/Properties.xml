@@ -8,7 +8,8 @@
 			initParameter="yes" />
 		<Property name="default_game" type="STRING" />
 		<Property name="default_players" type="STRING" />
-		<Property name="local.player.name" type="STRING" />
+		<Property name="local.player.name" type="STRING" />=
+        <Property name="skip_confirm_quit" type="BOOLEAN" />
 	</Section>
 	<Section name="Save">
 		<Property name="save.directory" type="DIRECTORY" />

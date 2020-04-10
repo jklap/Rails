@@ -365,8 +365,7 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
         addWindowListener(new WindowAdapter () {
             @Override
             public void windowClosing(WindowEvent e) {
-                if (JOptionPane.showConfirmDialog(frame, LocalText.getText("CLOSE_WINDOW"), LocalText.getText("Select"), JOptionPane.OK_CANCEL_OPTION)
-                        == JOptionPane.OK_OPTION) {
+                if ( GameUIManager.confirmQuit(frame) ) {
                     frame.dispose();
                     guiMgr.terminate();
                 }
@@ -385,7 +384,7 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
 
         if ( Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.APP_QUIT_HANDLER) ) {
             Desktop.getDesktop().setQuitHandler((e, r) -> {
-                if ( JOptionPane.showConfirmDialog(frame, LocalText.getText("CLOSE_WINDOW"), LocalText.getText("Select"), JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION ) {
+                if ( GameUIManager.confirmQuit(frame) ) {
                     frame.dispose();
                     guiMgr.terminate();
                     r.performQuit();
