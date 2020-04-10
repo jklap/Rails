@@ -29,6 +29,7 @@ rails.iml
 
 # rails log files
 **/18xx.log
+/18xx_test.log
 
 # backup files
 **/*.*~
