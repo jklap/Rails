@@ -132,16 +132,13 @@ public abstract class LayToken extends PossibleORAction {
         // check asOption attributes
         LayToken action = (LayToken)pa;
         boolean options = (Objects.equal(this.locations, action.locations) || this.locations == null && action.locations.isEmpty())
-                && Objects.equal(this.specialProperty, action.specialProperty)
-        ;
+                && Objects.equal(this.specialProperty, action.specialProperty);
 
         // finish if asOptions check
         if (asOption) return options;
 
         // check asAction attributes
-        return options
-            && Objects.equal(this.chosenHex, action.chosenHex)
-        ;
+        return options && Objects.equal(this.chosenHex, action.chosenHex);
     }
 
     @Override
