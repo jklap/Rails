@@ -70,9 +70,11 @@ import rails.game.action.StartCompany;
  * This class is called by main() and loads all of the UI components
  */
 public class GameUIManager implements DialogOwner {
+    private SplashWindow splashWindow = null;
     protected StatusWindow statusWindow;
     protected ReportWindow reportWindow;
     protected ConfigWindow configWindow;
+    protected GameConfigWindow gameConfigWindow;
     protected ORUIManager orUIManager;
     protected ORWindow orWindow; // TEMPORARY
     private StartRoundWindow startRoundWindow;
@@ -150,8 +152,6 @@ public class GameUIManager implements DialogOwner {
     public static final String EXCHANGE_TOKENS_DIALOG = "ExchangeTokens";
 
     private static final Logger log = LoggerFactory.getLogger(GameUIManager.class);
-
-    private SplashWindow splashWindow = null;
 
     public GameUIManager() {
     }
@@ -239,6 +239,11 @@ public class GameUIManager implements DialogOwner {
             configWindow.setVisible(false);
         }
 
+        if ( gameConfigWindow != null ) {
+            visibleWindows.put(gameConfigWindow, gameConfigWindow.isVisible());
+            gameConfigWindow.setVisible(false);
+        }
+
         if ( currentDialog != null ) {
             currentDialog.setVisible(false);
         }
@@ -269,6 +274,10 @@ public class GameUIManager implements DialogOwner {
 
         if ( configWindow != null ) {
             configWindow.setVisible(visibleWindows.get(configWindow));
+        }
+
+        if ( gameConfigWindow != null ) {
+            gameConfigWindow.setVisible(visibleWindows.get(gameConfigWindow));
         }
 
         if ( currentDialog != null ) {
@@ -307,6 +316,9 @@ public class GameUIManager implements DialogOwner {
         if ( configWindow != null ) {
             configWindow.dispose();
         }
+        if ( gameConfigWindow != null ) {
+            gameConfigWindow.dispose();
+        }
         if ( currentDialog != null ) {
             currentDialog.dispose();
         }
@@ -317,7 +329,7 @@ public class GameUIManager implements DialogOwner {
         // TODO: terminate things like Discord
 
         // clean up config items that are game play specific (ie like Discord)
-        ConfigManager.getInstance().clearTransientConfig();
+        railsRoot.getConfig().clearTransientConfig();
     }
 
     public void terminate() {
@@ -441,6 +453,9 @@ public class GameUIManager implements DialogOwner {
         splashWindow.notifyOfStep(SplashWindow.STEP_CONFIG_WINDOW);
         configWindow = new ConfigWindow(statusWindow);
         configWindow.init(true);
+
+        gameConfigWindow = new GameConfigWindow(this, statusWindow);
+        gameConfigWindow.init(true);
 
         // notify sound manager of game initialization
         splashWindow.notifyOfStep(SplashWindow.STEP_INIT_SOUND);
@@ -1331,6 +1346,7 @@ public class GameUIManager implements DialogOwner {
         // setEnabledWindow(enabled, stockChart, exceptionWindow);
         setEnabledWindow(enabled, reportWindow, exceptionWindow);
         setEnabledWindow(enabled, configWindow, exceptionWindow);
+        setEnabledWindow(enabled, gameConfigWindow, exceptionWindow);
         setEnabledWindow(enabled, orWindow, exceptionWindow);
         setEnabledWindow(enabled, startRoundWindow, exceptionWindow);
         setEnabledWindow(enabled, statusWindow, exceptionWindow);
@@ -1346,6 +1362,8 @@ public class GameUIManager implements DialogOwner {
         reportWindow.pack();
         SwingUtilities.updateComponentTreeUI(configWindow);
         configWindow.pack();
+        SwingUtilities.updateComponentTreeUI(gameConfigWindow);
+        gameConfigWindow.pack();
     }
 
     // Forwards the format() method to the server

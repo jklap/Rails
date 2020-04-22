@@ -52,13 +52,14 @@ public class ConfigManager implements Configurable {
 
     // configuration items: replace with Multimap in Rails 2.0
     private final Map<String, List<ConfigItem>> configSections = new TreeMap<>();
+    private Map<String, List<ConfigItem>> userConfigSections = null;
+    private Map<String, List<ConfigItem>> gameConfigSections = null;
 
     // recent data
     private final Properties recentData = new Properties();
 
     // profile storage
     private ConfigProfile activeProfile;
-    private final Map<String, String> transientConfig = new HashMap<>();
 
     private ConfigManager() {
         // do nothing
@@ -114,13 +115,14 @@ public class ConfigManager implements Configurable {
                     ConfigItem configItem = new ConfigItem(itemTag);
                     sectionItems.add(configItem);
                 }
-                configSections.put(sectionName, sectionItems);
+                if ( !sectionItems.isEmpty() ) {
+                    configSections.put(sectionName, sectionItems);
+                }
             }
         }
     }
 
-    public void finishConfiguration(RailsRoot parent)
-            throws ConfigurationException {
+    public void finishConfiguration(RailsRoot parent) throws ConfigurationException {
         // do nothing
     }
 
@@ -187,6 +189,33 @@ public class ConfigManager implements Configurable {
     }
 
     public Map<String, List<ConfigItem>> getConfigSections() {
+        if ( userConfigSections == null ) {
+            userConfigSections = getAllConfigSections(false);
+        }
+        return userConfigSections;
+    }
+
+    public Map<String, List<ConfigItem>> getGameConfigSections() {
+        if ( gameConfigSections == null ) {
+            gameConfigSections = getAllConfigSections(true);
+        }
+        return gameConfigSections;
+    }
+
+    private Map<String, List<ConfigItem>> getAllConfigSections(boolean gameRelated) {
+        Map<String, List<ConfigItem>> configSections = new TreeMap<>();
+        for ( Map.Entry <String, List<ConfigItem>> entry : this.configSections.entrySet() ) {
+            String sectionName = entry.getKey();
+            List<ConfigItem> configItems = new ArrayList<>();
+            for ( ConfigItem configItem : entry.getValue() ) {
+                if ( gameRelated == configItem.isGameRelated ) {
+                    configItems.add(configItem);
+                }
+            }
+            if ( !configItems.isEmpty() ) {
+                configSections.put(sectionName, configItems);
+            }
+        }
         return configSections;
     }
 
@@ -202,10 +231,6 @@ public class ConfigManager implements Configurable {
     }
 
     public String getValue(String key, String defaultValue) {
-        if (transientConfig.containsKey(key)) {
-            return transientConfig.get(key);
-        }
-
         // get value from active profile (this escalates)
         String value = activeProfile.getProperty(key);
         if (Util.hasValue(value)) {
@@ -213,14 +238,6 @@ public class ConfigManager implements Configurable {
         } else {
             return defaultValue;
         }
-    }
-
-    public void setValue(String key, String value) {
-        transientConfig.put(key, value);
-    }
-
-    public void clearTransientConfig() {
-        transientConfig.clear();
     }
 
     public String getActiveProfile() {
@@ -246,21 +263,12 @@ public class ConfigManager implements Configurable {
         return profileNames;
     }
 
-    public int getMaxElementsInPanels() {
-        int maxElements = 0;
-        for (List<ConfigItem> panel : configSections.values()) {
-            maxElements = Math.max(maxElements, panel.size());
-        }
-        log.debug("Configuration sections with maximum elements of {}", maxElements);
-        return maxElements;
-    }
-
     private void changeProfile(ConfigProfile profile) {
         activeProfile = profile;
         activeProfile.makeActive();
 
         // define configItems
-        for (List<ConfigItem> items : configSections.values()) {
+        for (List<ConfigItem> items : getConfigSections().values()) {
             for (ConfigItem item : items) {
                 // TODO: should we ignore isGameRelated?
                 item.setCurrentValue(getValue(item.name, null));
@@ -277,20 +285,15 @@ public class ConfigManager implements Configurable {
      */
     public boolean saveProfile(boolean applyInitMethods) {
         log.debug("saving profile now");
-        for (List<ConfigItem> items : configSections.values()) {
+        for (List<ConfigItem> items : getConfigSections().values()) {
             for (ConfigItem item : items) {
                 if (item.isGameRelated) {
-                    if (StringUtils.isNotBlank(item.getNewValue())) {
-                        transientConfig.put(item.name, item.getNewValue());
-                    } else {
-                        transientConfig.remove(item.name);
-                    }
                     continue;
                 }
                 // if item has changed ==> change profile and call init Method
                 if (item.hasChanged()) {
-                    activeProfile.setProperty(item.name, item.getNewValue());
                     log.debug("User properties for = {} set to value = {}", item.name, item.getCurrentValue());
+                    activeProfile.setProperty(item.name, item.getNewValue());
                     item.callInitMethod(applyInitMethods);
                     item.resetValue();
                 }
@@ -302,6 +305,29 @@ public class ConfigManager implements Configurable {
     public boolean saveNewProfile(String name, boolean applyInitMethods) {
         activeProfile = activeProfile.deriveUserProfile(name);
         return saveProfile(applyInitMethods);
+    }
+
+    public boolean saveConfig(GameConfig gameConfig, boolean applyInitMethods) {
+        log.debug("saving profile now");
+        for (List<ConfigItem> items : getGameConfigSections().values()) {
+            for (ConfigItem item : items) {
+                if (!item.isGameRelated) {
+                    continue;
+                }
+                // if item has changed ==> change profile and call init Method
+                if (item.hasChanged()) {
+                    log.debug("GameConfig properties for = {} set to value = {}", item.name, item.getCurrentValue());
+                    if ( StringUtils. isNotBlank(item.getNewValue()) ) {
+                        gameConfig.set(item.getName(), item.getNewValue());
+                    } else {
+                        gameConfig.remove(item.getName());
+                    }
+                    item.callInitMethod(applyInitMethods);
+                    item.resetValue();
+                }
+            }
+        }
+        return true;
     }
 
     public boolean deleteActiveProfile() {

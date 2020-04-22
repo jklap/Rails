@@ -1,11 +1,15 @@
 package net.sf.rails.game;
 
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.sf.rails.algorithms.RevenueManager;
 import net.sf.rails.common.Config;
+import net.sf.rails.common.ConfigManager;
 import net.sf.rails.common.DisplayBuffer;
+import net.sf.rails.common.GameConfig;
 import net.sf.rails.common.GameData;
 import net.sf.rails.common.GameOptionsSet;
 import net.sf.rails.common.LocalText;
@@ -50,16 +54,17 @@ public class RailsRoot extends Root implements RailsItem {
     // Other Managers
     private ReportManager reportManager;
 
+    private GameConfig gameConfig = new GameConfig();
+
     private RailsRoot(GameData gameData) {
         super();
 
         for (String playerName : gameData.getPlayers()) {
             log.debug("Player: {}", playerName);
         }
-        for (String optionName : gameData.getGameOptions().getOptions().keySet()) {
-            log.debug("Option: {}={}", optionName, gameData.getGameOptions().get(optionName));
+        for ( Map.Entry<String, String> entry : gameData.getGameOptions().getOptions().entrySet()) {
+            log.debug("Option: {}={}", entry.getKey(), entry.getValue());
         }
-
         this.gameData = gameData;
     }
 
@@ -256,6 +261,10 @@ public class RailsRoot extends Root implements RailsItem {
     @Override
     public RailsRoot getRoot() {
         return this;
+    }
+
+    public GameConfig getConfig() {
+        return gameConfig;
     }
 
 }

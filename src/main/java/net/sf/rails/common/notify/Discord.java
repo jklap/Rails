@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.sf.rails.common.Config;
+import net.sf.rails.common.GameConfig;
 import net.sf.rails.game.Player;
 import net.sf.rails.game.PlayerManager;
 import net.sf.rails.game.RailsRoot;
@@ -31,6 +32,7 @@ public class Discord {
 
     private final RailsRoot root;
     private final GameUIManager gameUiManager;
+    private final GameConfig config;
 
     private CurrentPlayerModelObserver observer;
 
@@ -42,12 +44,25 @@ public class Discord {
     private static final String MESSAGE_TEMPLATE = "Your turn ${current}";
     private static final String BODY_TEMPLATE = "{\"content\":\"@@\", \"username\":\"Rails\"}";
 
+    public Discord(final GameUIManager gameUIManger, final RailsRoot root) {
+        this.gameUiManager = gameUIManger;
+        this.config = gameUIManger.getRoot().getConfig();
+        this.root = root;
+        httpClient = HttpClients.createDefault();
+
+        final PlayerManager pm = root.getPlayerManager();
+        if ( pm.getCurrentPlayerModel() != null ) {
+            observer = new CurrentPlayerModelObserver(pm);
+            pm.getCurrentPlayerModel().addObserver(observer);
+        }
+    }
+
     public void setConfig() {
-        webhook = StringUtils.trimToNull(Config.get("notify.discord.webhook"));
-        String message = StringUtils.defaultIfBlank(Config.get("notify.message"), MESSAGE_TEMPLATE);
+        webhook = StringUtils.trimToNull(config.get("notify.discord.webhook"));
+        String message = StringUtils.defaultIfBlank(config.get("notify.message"), MESSAGE_TEMPLATE);
         body = StringUtils.replace(BODY_TEMPLATE, "@@", message);
 
-        parseUserMappings(Config.get("notify.discord.user_mapping"));
+        parseUserMappings(config.get("notify.discord.user_mapping"));
     }
 
     public void parseUserMappings(String mappings) {
@@ -72,7 +87,7 @@ public class Discord {
         }
 
         public void update(String text) {
-            String localPlayer = Config.get("local.player.name");
+            String localPlayer = config.get("local.player.name");
             log.debug("Discord called with f:{}/c:{}/l:{}", formerCurrentPlayer.getId(), pm.getCurrentPlayer().getId(), localPlayer);
             if ( formerCurrentPlayer != pm.getCurrentPlayer() ) {
                 if ( formerCurrentPlayer.getId().equals(localPlayer ) ) {
@@ -92,18 +107,6 @@ public class Discord {
 
         public Player getFormerPlayer() {
             return formerCurrentPlayer;
-        }
-    }
-
-    public Discord(final GameUIManager gameUIManger, final RailsRoot root) {
-        this.gameUiManager = gameUIManger;
-        this.root = root;
-        httpClient = HttpClients.createDefault();
-
-        final PlayerManager pm = root.getPlayerManager();
-        if ( pm.getCurrentPlayerModel() != null ) {
-            observer = new CurrentPlayerModelObserver(pm);
-            pm.getCurrentPlayerModel().addObserver(observer);
         }
     }
 

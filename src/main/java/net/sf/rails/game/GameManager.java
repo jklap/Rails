@@ -920,7 +920,7 @@ public class GameManager extends RailsManager implements Configurable, Owner {
     protected void recoverySave() {
         if (Config.get("save.recovery.active", "yes").equalsIgnoreCase("no")) return;
 
-        GameSaver gameSaver = new GameSaver(getRoot().getGameData(), executedActions.view());
+        GameSaver gameSaver = new GameSaver(getRoot(), executedActions.view());
         try {
             gameSaver.autoSave();
             recoverySaveWarning = false;
@@ -935,7 +935,7 @@ public class GameManager extends RailsManager implements Configurable, Owner {
     }
 
     protected boolean save(GameAction saveAction) {
-        GameSaver gameSaver = new GameSaver(getRoot().getGameData(), executedActions.view());
+        GameSaver gameSaver = new GameSaver(getRoot(), executedActions.view());
         File file = new File(saveAction.getFilepath());
         try {
             gameSaver.saveGame(file);

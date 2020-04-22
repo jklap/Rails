@@ -1,6 +1,8 @@
 package net.sf.rails.util;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import rails.game.action.PossibleAction;
 
@@ -17,7 +19,9 @@ class GameIOData {
     private String date;
     private long fileVersionID;
     private List<PossibleAction> actions;
-    
+
+    private final Map<String, String> gameConfig = new HashMap<>();
+
     GameIOData(GameData gameData, String version, String date, Long fileVersionID, List<PossibleAction> actions) {
         this.gameData = gameData;
         this.version = version;
@@ -67,6 +71,19 @@ class GameIOData {
 
     List<PossibleAction> getActions() {
         return actions;
+    }
+
+    public Map<String, String> getGameConfig() {
+        return gameConfig;
+    }
+
+    public void addGameConfig(String name, String value) {
+        gameConfig.put(name, value);
+    }
+
+    public void setGameConfig(Map<String, String> config) {
+        gameConfig.clear();
+        gameConfig.putAll(config);
     }
 
     String metaDataAsText() {

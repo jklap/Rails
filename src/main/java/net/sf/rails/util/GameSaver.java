@@ -19,6 +19,7 @@ import net.sf.rails.common.ConfigItem;
 import net.sf.rails.common.ConfigManager;
 import net.sf.rails.common.GameData;
 import net.sf.rails.common.LocalText;
+import net.sf.rails.game.RailsRoot;
 import rails.game.action.PossibleAction;
 
 
@@ -26,7 +27,6 @@ import rails.game.action.PossibleAction;
  * GameLoader is responsible to load a saved Rails game
  */
 public class GameSaver {
-
     private static final Logger log = LoggerFactory.getLogger(GameSaver.class);
 
     /** Version ID of the Save file header, as written in save() */
@@ -42,19 +42,21 @@ public class GameSaver {
     public static final String AUTOSAVE_FILE = "18xx_autosave.rails";
 
     // game data
-    private final GameIOData gameIOData = new GameIOData();
+    private final GameIOData gameIOData;
 
     /**
      * Creates a new game saver
      * @param gameData of the game to save
      * @param actions to save
      */
-    public GameSaver(GameData gameData, List<PossibleAction> actions) {
-        gameIOData.setGameData(gameData);
+    public GameSaver(RailsRoot railsRoot, List<PossibleAction> actions) {
+        gameIOData = new GameIOData();
+        gameIOData.setGameData(railsRoot.getGameData());
         gameIOData.setVersion(Config.getVersion());
         gameIOData.setDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         gameIOData.setActions(actions);
         gameIOData.setFileVersionID(saveFileVersionID);
+        gameIOData.setGameConfig(railsRoot.getConfig().getConfigMap());
     }
 
     /**
@@ -62,7 +64,7 @@ public class GameSaver {
      * @param gameLoader to use
      */
     public GameSaver(GameLoader gameLoader) {
-        this(gameLoader.getRoot().getGameData(), gameLoader.getActions());
+        this(gameLoader.getRoot(), gameLoader.getActions());
     }
 
     /**
@@ -82,19 +84,8 @@ public class GameSaver {
             }
             oos.writeObject(gameIOData.getGameData().getGameOptions().getOptions());
             // save game play related options
-            Map<String, String> gameOptions = new HashMap<>();
-            for ( Map.Entry<String, List<ConfigItem>> entry : ConfigManager.getInstance().getConfigSections().entrySet() ) {
-                for ( ConfigItem config : entry.getValue() ) {
-                    if ( config.isGameRelated ) {
-                        String value = Config.get(config.name);
-                        if ( StringUtils.isNotBlank(value) ) {
-                            gameOptions.put(config.name, Config.get(config.name));
-                        }
-                    }
-                }
-            }
-            if ( !gameOptions.isEmpty() ) {
-                oos.writeObject(gameOptions);
+            if ( !gameIOData.getGameConfig().isEmpty() ) {
+                oos.writeObject(gameIOData.getGameConfig());
             }
 
             oos.writeObject(gameIOData.getGameData().getPlayers());

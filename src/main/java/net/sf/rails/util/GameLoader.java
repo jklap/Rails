@@ -18,9 +18,9 @@ import rails.game.action.PossibleAction;
 import javax.swing.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.SortedMap;
 
 /**
@@ -107,7 +107,7 @@ public class GameLoader {
     // deviations from undefined to default values
     private GameOptionsSet.Builder loadDefaultGameOptions(String gameName) {
         log.debug("Load default Game Options of {}", gameName);
-        GameOptionsSet.Builder loadGameOptions = null;
+        GameOptionsSet.Builder loadGameOptions;
         try {
             loadGameOptions = GameOptionsParser.load(gameName);
         } catch (ConfigurationException e) {
@@ -123,13 +123,7 @@ public class GameLoader {
      * @param gameFile
      */
     @SuppressWarnings("unchecked")
-    public void loadGameData(File gameFile) throws Exception {
-        log.info("Loading game from file {}", gameFile.getCanonicalPath());
-        // FIXME: Removed the filename replacement expression
-        // check if this still works
-        // String filename = filePath.replaceAll(".*[/\\\\]", "");
-        ois = new RailsObjectInputStream(this, new FileInputStream(gameFile));
-
+    private void loadGameData(File gameFile) throws Exception {
         Object object = ois.readObject();
         String version;
         if (object instanceof String) {
@@ -169,7 +163,7 @@ public class GameLoader {
         String usersGameName = null;
         object = ois.readObject();
         if ( object instanceof String ) {
-            // read user's game name
+            // TODO deprecate: read user's game name
             usersGameName = (String) object;
             object = ois.readObject();
         }
@@ -182,8 +176,8 @@ public class GameLoader {
         for (GameOption option : gameOptions.getOptions()) {
             String name = option.getName();
             if (savedOptions.containsKey(name)) {
-                option.setSelectedValue(savedOptions.get(name));
                 log.debug("Assigned option from game file {}", name);
+                option.setSelectedValue(savedOptions.get(name));
             } else {
                 // FIXME: Rails 2.0 add unassigned value as other default possibility
                 log.debug("Missing option in save file {} using default value instead", name);
@@ -193,13 +187,8 @@ public class GameLoader {
         object = ois.readObject();
         if (object instanceof Map) {
             // used to store game file specific configuration options that aren't related to the game itself
-            Map<String, String> configOptions = (Map<String, String>) object;
-            log.debug("Saved file configuration = {}", configOptions);
-
-            // iterate over configOptions injecting into ConfigManager as needed
-            for (Entry<String, String> config : configOptions.entrySet()) {
-                Config.set(config.getKey(), config.getValue());
-            }
+            log.debug("Saved file configuration = {}", object);
+            gameIOData.setGameConfig((Map<String, String>) object);
 
             // read the next object which would be the list of player names
             object = ois.readObject();
@@ -218,7 +207,7 @@ public class GameLoader {
      * Requires successful load of gameData
      */
     @SuppressWarnings("unchecked")
-    public void convertGameData() throws Exception {
+    private void convertGameActions() throws Exception {
         // Read game actions into gameData.listOfActions
         // read next object in stream
         Object actionObject = null;
@@ -271,8 +260,13 @@ public class GameLoader {
                 // but also the java.io.StreamCorruptedException: invalid type code
             }
         }
-        ois.close();
-        ois = null;
+    }
+
+    public void checkAndUpdateGameData() {
+        // TODO: verify data loaded matches what we found in the current railsRoot
+
+        GameConfig config = railsRoot.getConfig();
+        config.setConfig(gameIOData.getGameConfig());
     }
 
     /**
@@ -325,22 +319,31 @@ public class GameLoader {
         return gameIOData.metaDataAsText() + gameIOData.gameOptionsAsText() + gameIOData.playerNamesAsText();
     }
 
+
     /**
      * @param gameFile
      * @return false if exception occurred
      */
     public boolean createFromFile(File gameFile) {
         try {
+            log.info("Loading game from file {}", gameFile.getCanonicalPath());
+            ois = new RailsObjectInputStream(this, Files.newInputStream(gameFile.toPath()));
+
             // 1st: loadGameData
             loadGameData(gameFile);
 
-            // 2nd: create game
+            // 2nd: create game (as it is needed when we start processing actions)
             railsRoot = RailsRoot.create(gameIOData.getGameData());
 
             // 3rd: convert game data (retrieve actions)
-            convertGameData();
+            convertGameActions();
 
-            // 4th: start game
+            ois.close();
+
+            // 4th: check and update data between what we loaded and railsRoot
+            checkAndUpdateGameData();
+
+            // 5th: start game
             railsRoot.start();
 
         } catch (Exception e) {
@@ -348,7 +351,7 @@ public class GameLoader {
             exception = e;
             return false;
         }
-        // 5th: replay game
+        // 6th: replay game
         return replayGame();
     }
 
@@ -376,30 +379,23 @@ public class GameLoader {
             return loader.getRoot();
         }
 
-//        @Override
-//        protected java.io.ObjectStreamClass readClassDescriptor()
-//                throws IOException, ClassNotFoundException {
-//            ObjectStreamClass desc = super.readClassDescriptor();
-//            String className = desc.getName();
-//            log.debug("Found class = " + className);
-//            if (className.startsWith("rails.")) {
-//                String newClassName = className.replace("rails.", "net.sf.rails.");
-//                log.debug("Replaced class " + className + " by new class " + newClassName);
-//                return ObjectStreamClass.lookup(Class.forName(newClassName));
-//            } else {
-//                return desc;
-//            }
-//        }
     }
 
-    public boolean reloadGameFromFile(RailsRoot root, File file) {
-        try {
-            railsRoot = root;
-            // 1st: loadGameData
-            loadGameData(file);
+    public boolean reloadGameFromFile(RailsRoot root, File gameFile) {
+        railsRoot = root;
 
+        try {
+            ois = new RailsObjectInputStream(this, Files.newInputStream(gameFile.toPath()));
+
+
+            // 1st: loadGameData
+            loadGameData(gameFile);
             // 2nd: convert game data (retrieve actions)
-            convertGameData();
+            convertGameActions();
+            // 3rd: check and update data between what we loaded and railsRoot
+            checkAndUpdateGameData();
+
+            ois.close();
 
         } catch (Exception e) {
             log.debug("Exception during createFromFile in gameLoader ", e);

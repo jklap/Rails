@@ -88,6 +88,8 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
 
     protected static final String CONFIG_CMD = "Config";
 
+    protected static final String GAME_CONFIG_CMD = "GameConfig";
+
     protected static final String BUY_CMD = "Buy";
 
     protected static final String SELL_CMD = "Sell";
@@ -241,6 +243,12 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
         menuItem.setName(CONFIG_CMD);
         menuItem.setActionCommand(CONFIG_CMD);
         menuItem.setMnemonic(KeyEvent.VK_C);
+        menuItem.addActionListener(this);
+        optMenu.add(menuItem);
+
+        menuItem = new JCheckBoxMenuItem(LocalText.getText("GAME_CONFIG"));
+        menuItem.setName(GAME_CONFIG_CMD);
+        menuItem.setActionCommand(GAME_CONFIG_CMD);
         menuItem.addActionListener(this);
         optMenu.add(menuItem);
 
@@ -737,6 +745,8 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
             gameUIManager.orWindow.setVisible(((JMenuItem) actor.getSource()).isSelected());
         } else if (command.equals(CONFIG_CMD)) {
             gameUIManager.configWindow.setVisible(((JMenuItem) actor.getSource()).isSelected());
+        } else if (command.equals(GAME_CONFIG_CMD)) {
+            gameUIManager.gameConfigWindow.setVisible(((JMenuItem) actor.getSource()).isSelected());
         } else if (command.equals(AUTOSAVELOAD_CMD)) {
             gameUIManager.autoSaveLoadGame();
         } else if (command.equals(SAVESTATUS_CMD)) {

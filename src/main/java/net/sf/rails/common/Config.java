@@ -87,14 +87,6 @@ public final class Config {
         return intValue != null ? intValue : defaultValue;
     }
 
-    public static void set(String key, String value) {
-        ConfigManager.getInstance().setValue(key, value);
-    }
-
-    public static void setBoolean(String key, boolean value) {
-        set(key, value ? "yes" : "no");
-    }
-
     /**
      * Configuration option: First tries to return {key}.{appendix}, if undefined returns {key}
      */

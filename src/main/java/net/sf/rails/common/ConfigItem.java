@@ -95,6 +95,10 @@ public final class ConfigItem {
         return !getCurrentValue().equals(newValue);
     }
 
+    public String getName() {
+        return name;
+    }
+
     public String getValue() {
         if (hasChanged()) {
             return getNewValue();
