@@ -36,11 +36,7 @@ public class RunGame {
                     // open the file
                     log.debug("received file open event for: {}", file);
 
-                    if ( OpenGamesManager.getInstance().countOfOpenGames() > 0 ) {
-                        // unable to currently open more than one game
-                        log.warn("Unable to open more than one game");
-                        break;
-                    }
+                    // TODO: need to prevent loading the same game more than one
                     synchronized (hasStarted) {
                         if ( hasStarted.get() ) {
                             log.debug("hiding game setup controller");

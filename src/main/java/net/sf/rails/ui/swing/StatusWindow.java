@@ -27,6 +27,7 @@ import net.sf.rails.common.GuiDef;
 import net.sf.rails.common.LocalText;
 import net.sf.rails.game.EndOfGameRound;
 import net.sf.rails.game.GameManager;
+import net.sf.rails.game.OpenGamesManager;
 import net.sf.rails.game.OperatingRound;
 import net.sf.rails.game.Player;
 import net.sf.rails.game.StartRound;
@@ -114,7 +115,7 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
 
     private JMenuBar menuBar;
 
-    private JMenu fileMenu, optMenu, moveMenu, moderatorMenu, specialMenu, correctionMenu, developerMenu;
+    private JMenu fileMenu, optMenu, moveMenu, moderatorMenu, specialMenu, correctionMenu, developerMenu, gameMenu;
 
     private ActionMenuItem undoItem;
     private ActionMenuItem forcedUndoItem;
@@ -306,6 +307,12 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
             developerMenu.add(saveLogsItem);
         }
 
+        gameMenu = new JMenu("Games");
+        gameMenu.setName("Games");
+        menuBar.add(gameMenu);
+
+        updateGamesMenu();
+
         setJMenuBar(menuBar);
 
         if ("yes".equalsIgnoreCase(Config.get("report.window.open"))) {
@@ -319,8 +326,7 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
 
         String gameStatusClassName = gameUIManager.getClassName(GuiDef.ClassName.GAME_STATUS);
         try {
-            Class<? extends GameStatus> gameStatusClass =
-                Class.forName(gameStatusClassName).asSubclass(GameStatus.class);
+            Class<? extends GameStatus> gameStatusClass = Class.forName(gameStatusClassName).asSubclass(GameStatus.class);
             gameStatus = gameStatusClass.newInstance();
         } catch (Exception e) {
             log.error("Cannot instantiate class {}", gameStatusClassName, e);
@@ -401,6 +407,34 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
         }
 
         gameUIManager.packAndApplySizing(this);
+    }
+
+    @Override
+    public void setVisible(boolean isVisible) {
+        super.setVisible(isVisible);
+
+        if ( isVisible ) {
+            updateGamesMenu();
+        }
+    }
+
+    public void updateGamesMenu() {
+        // update the games menu
+        gameMenu.removeAll();
+
+        String selfGameId = OpenGamesManager.getGameIdentifier(gameUIManager);
+
+        for ( OpenGamesManager.GameState gameState : OpenGamesManager.getInstance().getGameStates() ) {
+            String gameName = gameState.getGameName();
+            String menuText = gameName + " (" + gameState.getCurrentPlayer() + ")";
+
+            JCheckBoxMenuItem toggleGame = new JCheckBoxMenuItem(menuText);
+            toggleGame.addActionListener(evt -> OpenGamesManager.getInstance().makeGameActive(gameName));
+            if ( gameName.equals(selfGameId) ) {
+                toggleGame.setState(true);
+            }
+            gameMenu.add(toggleGame);
+        }
     }
 
     public void initGameActions() {
@@ -690,8 +724,8 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
                 final File selectedFile = jfc.getSelectedFile();
                 //start in new thread so that swing thread is not used for game setup
                 new Thread(() -> {
-                    // close the existing game (which ironically will include us
-                    gameUIManager.closeGame();
+                    // close the existing game (which ironically will include us)
+                    gameUIManager.hideGame();
                     // start the new game
                     GameLoader.loadAndStartGame(selectedFile);
                 }).start();

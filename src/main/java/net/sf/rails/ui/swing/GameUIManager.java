@@ -13,7 +13,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Observable;
 import java.util.Set;
 import java.util.TimeZone;
@@ -44,6 +47,7 @@ import net.sf.rails.common.notify.Slack;
 import net.sf.rails.game.financial.Bank;
 import net.sf.rails.game.financial.StockRound;
 import net.sf.rails.game.round.RoundFacade;
+import net.sf.rails.game.state.BooleanState;
 import net.sf.rails.game.state.Observer;
 import net.sf.rails.sound.SoundManager;
 import net.sf.rails.ui.swing.elements.CheckBoxDialog;
@@ -182,7 +186,7 @@ public class GameUIManager implements DialogOwner {
             log.debug("starting game with my turn: {}", myTurn);
         }
 
-        OpenGamesManager.getInstance().addGame(this);
+        OpenGamesManager.getInstance().addGame(this, true);
     }
 
     private void initWindowSettings() {
@@ -199,9 +203,92 @@ public class GameUIManager implements DialogOwner {
                 LocalText.getText("Select"), JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION;
     }
 
+    private Map<JFrame, Boolean> visibleWindows = new HashMap<>();
+    private JFrame windowToFront = null;
+
+    private boolean isShowing = true;
+
+    public void hideGame() {
+        if ( !isShowing ) {
+            return;
+        }
+        windowToFront = null;
+        visibleWindows.clear();
+        if ( startRoundWindow != null ) {
+            visibleWindows.put(startRoundWindow, startRoundWindow.isVisible());
+            startRoundWindow.setVisible(false);
+        }
+
+        if ( reportWindow != null ) {
+            visibleWindows.put(reportWindow, reportWindow.isVisible());
+            reportWindow.setVisible(false);
+        }
+
+        if ( statusWindow != null ) {
+            visibleWindows.put(statusWindow, statusWindow.isVisible());
+            statusWindow.setVisible(false);
+        }
+
+        if ( orWindow != null ) {
+            visibleWindows.put(orWindow, orWindow.isVisible());
+            orWindow.setVisible(false);
+        }
+
+        if ( configWindow != null ) {
+            visibleWindows.put(configWindow, configWindow.isVisible());
+            configWindow.setVisible(false);
+        }
+
+        if ( currentDialog != null ) {
+            currentDialog.setVisible(false);
+        }
+
+        isShowing = false;
+    }
+
+    public void showGame() {
+        if ( isShowing ) {
+            return;
+        }
+
+        if ( startRoundWindow != null ) {
+            startRoundWindow.setVisible(visibleWindows.get(startRoundWindow));
+        }
+
+        if ( reportWindow != null ) {
+            reportWindow.setVisible(visibleWindows.get(reportWindow));
+        }
+
+        if ( statusWindow != null ) {
+            statusWindow.setVisible(visibleWindows.get(statusWindow));
+        }
+
+        if ( orWindow != null ) {
+            orWindow.setVisible(visibleWindows.get(orWindow));
+        }
+
+        if ( configWindow != null ) {
+            configWindow.setVisible(visibleWindows.get(configWindow));
+        }
+
+        if ( currentDialog != null ) {
+            currentDialog.setVisible(true);
+        }
+
+        if ( windowToFront != null ) {
+            windowToFront.toFront();
+        }
+
+        isShowing = true;
+    }
+
+    public void updateStatusWindowGamesMenu() {
+        statusWindow.updateGamesMenu();
+    }
+
     public void closeGame() {
         if ( myTurn ) {
-            // TODO: confirm game close if in turn and polling?
+            // TODO: confirm game close if in myTurn and polling?
         }
         OpenGamesManager.getInstance().removeGame(this);
         getWindowSettings().save();
@@ -420,6 +507,7 @@ public class GameUIManager implements DialogOwner {
                                             LocalText.getText("YourTurn", localPlayerName)),
                                     null);
                         }
+                        // TODO: set check in StatusWindow for game to indicate a waiting turn??
 
                         log.info("Resuming turn as {}", localPlayerName);
                     } else {
@@ -429,6 +517,8 @@ public class GameUIManager implements DialogOwner {
                     // first time through after a game load needs to set myTurn
                     log.info("{} keeps the turn", oldPlayer.getId());
                 }
+
+                OpenGamesManager.getInstance().updatedGameState(this);
             }
         }
 
@@ -1278,6 +1368,11 @@ public class GameUIManager implements DialogOwner {
      * postpones the setVisible to the point in time where the splash is completed.
      */
     public void setMeVisible(JFrame frame, boolean setToVisible) {
+        if ( ! isShowing ) {
+            // update the visible windows for when we do end up displaying
+            visibleWindows.put(frame, setToVisible);
+            return;
+        }
         if (splashWindow == null) {
             frame.setVisible(setToVisible);
         } else {
@@ -1291,6 +1386,10 @@ public class GameUIManager implements DialogOwner {
      * postpones the toFront to the point in time where the splash is completed.
      */
     public void setMeToFront(JFrame frame) {
+        if ( ! isShowing ) {
+            windowToFront = frame;
+            return;
+        }
         if (splashWindow == null) {
             frame.toFront();
         } else {
@@ -1363,6 +1462,10 @@ public class GameUIManager implements DialogOwner {
         } catch (FileNotFoundException e) {
             log.warn("unable to open log output file", e);
         }
+    }
+
+    public String getLastSavedFilename() {
+        return lastSavedFilename;
     }
 
     public class PlayerOrderView implements Observer {
