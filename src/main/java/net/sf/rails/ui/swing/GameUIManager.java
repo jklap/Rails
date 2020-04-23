@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
@@ -37,7 +36,6 @@ import ch.qos.logback.classic.PatternLayout;
 import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.read.CyclicBufferAppender;
 import net.sf.rails.common.Config;
-import net.sf.rails.common.ConfigManager;
 import net.sf.rails.common.DisplayBuffer;
 import net.sf.rails.common.GuiDef;
 import net.sf.rails.common.GuiHints;
@@ -47,7 +45,6 @@ import net.sf.rails.common.notify.Slack;
 import net.sf.rails.game.financial.Bank;
 import net.sf.rails.game.financial.StockRound;
 import net.sf.rails.game.round.RoundFacade;
-import net.sf.rails.game.state.BooleanState;
 import net.sf.rails.game.state.Observer;
 import net.sf.rails.sound.SoundManager;
 import net.sf.rails.ui.swing.elements.CheckBoxDialog;
@@ -764,7 +761,7 @@ public class GameUIManager implements DialogOwner {
     }
 
     public void uncheckMenuItemBox(String itemName) {
-        statusWindow.uncheckMenuItemBox(itemName);
+        statusWindow.setMenuItemCheckbox(itemName, false);
     }
 
     /**
@@ -1167,9 +1164,7 @@ public class GameUIManager implements DialogOwner {
     }
 
     public void autoSaveLoadGame() {
-        AutoSaveLoadDialog dialog = new AutoSaveLoadDialog(this,
-                autoSaveLoadStatus,
-                autoSaveLoadPollingInterval);
+        AutoSaveLoadDialog dialog = new AutoSaveLoadDialog(this, autoSaveLoadStatus, autoSaveLoadPollingInterval);
         setCurrentDialog(dialog, null);
     }
 
@@ -1187,6 +1182,8 @@ public class GameUIManager implements DialogOwner {
         }
         log.debug("Polling local player name: {}", localPlayerName);
         log.debug("AutoSaveLoad parameters: status={} interval={}", autoSaveLoadStatus, autoSaveLoadPollingInterval);
+
+        statusWindow.setMenuItemCheckbox(StatusWindow.AUTOSAVELOAD_CMD, autoSaveLoadStatus > 0);
 
         if (autoSaveLoadStatus != AutoLoadPoller.OFF) {
             if (!gameWasLoaded) {

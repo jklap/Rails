@@ -146,8 +146,6 @@ public class RemainingTilesWindow extends JFrame implements WindowListener,
 
     @Override
     public void windowClosing(WindowEvent e) {
-        orWindow.getGameUIManager().uncheckMenuItemBox(LocalText.getText("MAP"));
-
         for ( Map.Entry<Tile, Observer> entry : observerMap.entrySet() ) {
             entry.getKey().getTilesLaid().removeObserver(entry.getValue());
         }

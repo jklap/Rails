@@ -96,7 +96,7 @@ public class GameConfigWindow extends BaseConfigWindow {
         super.closeConfig();
 
         if (parent instanceof StatusWindow) {
-            ((StatusWindow)parent).uncheckMenuItemBox(StatusWindow.GAME_CONFIG_CMD);
+            ((StatusWindow)parent).setMenuItemCheckbox(StatusWindow.GAME_CONFIG_CMD, false);
         }
     }
 

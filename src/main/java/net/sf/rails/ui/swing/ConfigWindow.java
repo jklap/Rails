@@ -198,7 +198,7 @@ class ConfigWindow extends BaseConfigWindow {
         super.closeConfig();
 
         if (parent instanceof StatusWindow) {
-            ((StatusWindow)parent).uncheckMenuItemBox(StatusWindow.CONFIG_CMD);
+            ((StatusWindow)parent).setMenuItemCheckbox(StatusWindow.CONFIG_CMD, false);
         }
     }
 

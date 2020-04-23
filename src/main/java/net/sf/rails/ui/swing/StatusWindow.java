@@ -13,7 +13,9 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
@@ -124,6 +126,8 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
     private ActionMenuItem redoItem;
     private ActionMenuItem redoItem2;
 
+    private final Map<String, JCheckBoxMenuItem> checkboxMenuItems = new HashMap<>();
+
     private static final Logger log = LoggerFactory.getLogger(StatusWindow.class);
 
     public void initMenu() {
@@ -154,6 +158,8 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
         actionMenuItem.setPossibleAction(new GameAction(gameUIManager.getRoot(), GameAction.Mode.LOAD));
         fileMenu.add(actionMenuItem);
 
+        fileMenu.addSeparator();
+
         actionMenuItem = new ActionMenuItem(LocalText.getText("SAVE"));
         actionMenuItem.setActionCommand(SAVE_CMD);
         actionMenuItem.setMnemonic(KeyEvent.VK_S);
@@ -172,13 +178,14 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
         actionMenuItem.setPossibleAction(new GameAction(gameUIManager.getRoot(), GameAction.Mode.RELOAD));
         fileMenu.add(actionMenuItem);
 
-        JMenuItem menuItem = new JMenuItem(LocalText.getText("AutoSaveLoad"));
+        JMenuItem menuItem = new JCheckBoxMenuItem(LocalText.getText("AutoSaveLoad"));
         menuItem.setActionCommand(AUTOSAVELOAD_CMD);
         menuItem.setMnemonic(KeyEvent.VK_A);
         menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, ActionEvent.ALT_MASK));
         menuItem.addActionListener(this);
         menuItem.setEnabled(true);
         fileMenu.add(menuItem);
+        checkboxMenuItems.put(AUTOSAVELOAD_CMD, (JCheckBoxMenuItem) menuItem);
 
         menuItem = new JMenuItem(LocalText.getText("SaveGameStatus"));
         menuItem.setActionCommand(SAVESTATUS_CMD);
@@ -223,6 +230,7 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
         menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_K, ActionEvent.CTRL_MASK));
         menuItem.addActionListener(this);
         optMenu.add(menuItem);
+        checkboxMenuItems.put(menuItem.getName(), (JCheckBoxMenuItem) menuItem);
 
         menuItem = new JCheckBoxMenuItem(LocalText.getText("MAP"));
         menuItem.setName(MAP_CMD);
@@ -231,6 +239,7 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
         menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, ActionEvent.CTRL_MASK));
         menuItem.addActionListener(this);
         optMenu.add(menuItem);
+        checkboxMenuItems.put(menuItem.getName(), (JCheckBoxMenuItem) menuItem);
 
         menuItem = new JCheckBoxMenuItem(LocalText.getText("REPORT"));
         menuItem.setName(REPORT_CMD);
@@ -238,6 +247,7 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
         menuItem.setMnemonic(KeyEvent.VK_R);
         menuItem.addActionListener(this);
         optMenu.add(menuItem);
+        checkboxMenuItems.put(menuItem.getName(), (JCheckBoxMenuItem) menuItem);
 
         menuItem = new JCheckBoxMenuItem(LocalText.getText("CONFIG"));
         menuItem.setName(CONFIG_CMD);
@@ -245,12 +255,14 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
         menuItem.setMnemonic(KeyEvent.VK_C);
         menuItem.addActionListener(this);
         optMenu.add(menuItem);
+        checkboxMenuItems.put(menuItem.getName(), (JCheckBoxMenuItem) menuItem);
 
         menuItem = new JCheckBoxMenuItem(LocalText.getText("GAME_CONFIG"));
         menuItem.setName(GAME_CONFIG_CMD);
         menuItem.setActionCommand(GAME_CONFIG_CMD);
         menuItem.addActionListener(this);
         optMenu.add(menuItem);
+        checkboxMenuItems.put(menuItem.getName(), (JCheckBoxMenuItem) menuItem);
 
         menuBar.add(optMenu);
 
@@ -324,7 +336,7 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
         setJMenuBar(menuBar);
 
         if ("yes".equalsIgnoreCase(Config.get("report.window.open"))) {
-            enableCheckBoxMenuItem(REPORT_CMD);
+            setMenuItemCheckbox(REPORT_CMD, true);
         }
     }
 
@@ -513,14 +525,14 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
         currentRound = round;
 
         if (round instanceof StartRound) {
-            disableCheckBoxMenuItem(MAP_CMD);
-            disableCheckBoxMenuItem(MARKET_CMD);
+            setMenuItemCheckbox(MAP_CMD, false);
+            setMenuItemCheckbox(MARKET_CMD, false);
         } else if (round instanceof StockRound) {
-            enableCheckBoxMenuItem(MARKET_CMD);
-            disableCheckBoxMenuItem(MAP_CMD);
+            setMenuItemCheckbox(MARKET_CMD, true);
+            setMenuItemCheckbox(MAP_CMD, false);
         } else if (round instanceof OperatingRound) {
-            enableCheckBoxMenuItem(MAP_CMD);
-            disableCheckBoxMenuItem(MARKET_CMD);
+            setMenuItemCheckbox(MAP_CMD, true);
+            setMenuItemCheckbox(MARKET_CMD, false);
         }
 
         // correction actions always possible
@@ -652,27 +664,11 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
         return false;
     }
 
-    private void enableCheckBoxMenuItem(String name) {
-        for (int x = 0; x < optMenu.getMenuComponentCount(); x++) {
-            try {
-                if (optMenu.getMenuComponent(x).getName().equals(name)) {
-                    ((JCheckBoxMenuItem) optMenu.getMenuComponent(x)).setSelected(true);
-                }
-            } catch (NullPointerException e) {
-                // The separator has null name. Har Har Har.
-            }
-        }
-    }
-
-    private void disableCheckBoxMenuItem(String name) {
-        for (int x = 0; x < optMenu.getMenuComponentCount(); x++) {
-            try {
-                if (optMenu.getMenuComponent(x).getName().equals(name)) {
-                    ((JCheckBoxMenuItem) optMenu.getMenuComponent(x)).setSelected(false);
-                }
-            } catch (NullPointerException e) {
-                // The separator has null name. Har Har Har.
-            }
+    public void setMenuItemCheckbox(String name, boolean isChecked) {
+        if ( checkboxMenuItems.containsKey(name) ) {
+            checkboxMenuItems.get(name).setSelected(isChecked);
+        } else {
+            log.warn("Missing checkbox menu item: {}", name);
         }
     }
 
@@ -818,21 +814,6 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
 
     public GameStatus getGameStatus() {
         return gameStatus;
-    }
-
-    public void uncheckMenuItemBox(String itemName) {
-        int count = optMenu.getMenuComponentCount();
-
-        for (int i = 0; i < count; i++) {
-            try {
-                if (optMenu.getMenuComponent(i).getName().equalsIgnoreCase(itemName)) {
-                    ((JCheckBoxMenuItem) optMenu.getMenuComponent(i)).setSelected(false);
-                    optMenu.invalidate();
-                }
-            } catch (NullPointerException e) {
-                // Seperators are null
-            }
-        }
     }
 
     public void finishRound() {
