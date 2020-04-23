@@ -9,20 +9,25 @@ public class GameData {
 
     private final List<String> players;
 
-    private GameData(GameInfo game, GameOptionsSet gameOptions, List<String> players) {
-        super();
+    private final String usersGameName;
 
+    private GameData(GameInfo game, GameOptionsSet gameOptions, List<String> players, String usersGameName) {
         this.game = game;
         this.gameOptions = gameOptions;
         this.players = players;
+        this.usersGameName = usersGameName;
     }
 
-    public static GameData create(GameInfo game, GameOptionsSet.Builder gameOptions, List<String> players) {
-        return new GameData(game, gameOptions.withNumberOfPlayers(players.size()).build(), players);
+    public static GameData create(GameInfo game, GameOptionsSet.Builder gameOptions, List<String> players, String usersGameName) {
+        return new GameData(game, gameOptions.withNumberOfPlayers(players.size()).build(), players, usersGameName);
     }
 
     public String getGameName() {
         return game.getName();
+    }
+
+    public String getUsersGameName() {
+        return usersGameName;
     }
 
     public GameOptionsSet getGameOptions() {

@@ -77,6 +77,9 @@ public class GameSaver {
             oos.writeObject(gameIOData.getDate());
             oos.writeObject(gameIOData.getFileVersionID());
             oos.writeObject(gameIOData.getGameData().getGameName());
+            if ( StringUtils.isNotBlank(gameIOData.getGameData().getUsersGameName()) ) {
+                oos.writeObject(gameIOData.getGameData().getUsersGameName());
+            }
             oos.writeObject(gameIOData.getGameData().getGameOptions().getOptions());
             // save game play related options
             Map<String, String> gameOptions = new HashMap<>();
@@ -95,6 +98,7 @@ public class GameSaver {
             }
 
             oos.writeObject(gameIOData.getGameData().getPlayers());
+
             for ( PossibleAction action : gameIOData.getActions() ) {
                 oos.writeObject(action);
             }

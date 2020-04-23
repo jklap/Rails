@@ -410,6 +410,12 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
     }
 
     @Override
+    public void setTitle(String title) {
+        String prefix = StringUtils.defaultString(gameUIManager.getRoot().getGameData().getUsersGameName(), "Rails: Game Status");
+        super.setTitle(prefix + " - " + title);
+    }
+
+    @Override
     public void setVisible(boolean isVisible) {
         super.setVisible(isVisible);
 
@@ -535,15 +541,11 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
         }
 
         if (currentRound instanceof TreasuryShareRound) {
-            setTitle(LocalText.getText(
-                    "TRADE_TREASURY_SHARES_TITLE",
-                    ((TreasuryShareRound) currentRound).getOperatingCompany().getId()));
+            setTitle(LocalText.getText("TRADE_TREASURY_SHARES_TITLE", ((TreasuryShareRound) currentRound).getOperatingCompany().getId()));
             gameStatus.initTurn(-1, true);
 
         } else if ((currentRound instanceof ShareSellingRound)) {
-            setTitle(LocalText.getText(
-                    "EMERGENCY_SHARE_SELLING_TITLE",
-                    (((ShareSellingRound) currentRound).getCompanyNeedingCash().getId())));
+            setTitle(LocalText.getText("EMERGENCY_SHARE_SELLING_TITLE", (((ShareSellingRound) currentRound).getCompanyNeedingCash().getId())));
             gameStatus.initTurn(getCurrentPlayer().getIndex(), true);
             gameStatus.setPriorityPlayer(gameUIManager.getPriorityPlayer().getIndex());
 
@@ -553,10 +555,7 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
                         "YouMustRaiseCash", gameUIManager.format(cash)), "",
                         JOptionPane.OK_OPTION);
         } else if (currentRound instanceof StockRound && !updateGameSpecificSettings()) {
-
-            setTitle(LocalText.getText(
-                    "STOCK_ROUND_TITLE",
-                    String.valueOf(((StockRound) currentRound).getStockRoundNumber())));
+            setTitle(LocalText.getText("STOCK_ROUND_TITLE", String.valueOf(((StockRound) currentRound).getStockRoundNumber())));
             gameStatus.initTurn(getCurrentPlayer().getIndex(), true);
             gameStatus.setPriorityPlayer(gameUIManager.getPriorityPlayer().getIndex());
         }
