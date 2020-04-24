@@ -26,7 +26,7 @@ public class StockChartWindow extends JFrame {
         add(fxPanel);
         setTitle("Rails: Stock Chart");
         setPreferredSize(new Dimension(600, 400));
-        setVisible(true);
+        setVisible(false);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 
         final JFrame frame = this;
@@ -41,7 +41,7 @@ public class StockChartWindow extends JFrame {
         Platform.runLater(() -> {
             Scene scene = new Scene(new FXStockChart(gameUIManager));
             fxPanel.setScene(scene);
-            frame.pack();
+            SwingUtilities.invokeLater(frame::pack);
         });
     }
 

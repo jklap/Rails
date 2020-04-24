@@ -231,6 +231,11 @@ public class GameUIManager implements DialogOwner {
             orWindow.setVisible(false);
         }
 
+        if ( stockChartWindow != null ) {
+            visibleWindows.put(stockChartWindow, stockChartWindow.isVisible());
+            stockChartWindow.setVisible(false);
+        }
+
         if ( configWindow != null ) {
             visibleWindows.put(configWindow, configWindow.isVisible());
             configWindow.setVisible(false);
@@ -267,6 +272,10 @@ public class GameUIManager implements DialogOwner {
 
         if ( orWindow != null ) {
             orWindow.setVisible(visibleWindows.get(orWindow));
+        }
+
+        if ( stockChartWindow != null ) {
+            stockChartWindow.setVisible(visibleWindows.get(stockChartWindow));
         }
 
         if ( configWindow != null ) {
@@ -308,6 +317,9 @@ public class GameUIManager implements DialogOwner {
         }
         if ( orWindow != null ) {
             orWindow.dispose();
+        }
+        if ( stockChartWindow != null ) {
+            stockChartWindow.dispose();
         }
         if ( configWindow != null ) {
             configWindow.dispose();
@@ -680,8 +692,9 @@ public class GameUIManager implements DialogOwner {
                 case STOCK_MARKET:
                     boolean stockChartVisibilityHint = hint.isVisible() || configuredStockChartVisibility;
                     if (stockChartVisibilityHint != previousStockChartVisibilityHint) {
-                        stockChartWindow.setVisible(stockChartVisibilityHint);
+                        setMeVisible(stockChartWindow, stockChartVisibilityHint);
                         previousStockChartVisibilityHint = stockChartVisibilityHint;
+                        statusWindow.setMenuItemCheckbox(StatusWindow.MARKET_CMD, stockChartVisibilityHint);
                     }
                     break;
                 case STATUS:
@@ -697,6 +710,7 @@ public class GameUIManager implements DialogOwner {
                     if (orWindowVisibilityHint != previousORWindowVisibilityHint) {
                         setMeVisible(orWindow, orWindowVisibilityHint);
                         previousORWindowVisibilityHint = orWindowVisibilityHint;
+                        statusWindow.setMenuItemCheckbox(StatusWindow.MAP_CMD, orWindowVisibilityHint);
                     }
                     if (orWindowVisibilityHint) setMeToFront(orWindow);
                     break;
@@ -723,7 +737,6 @@ public class GameUIManager implements DialogOwner {
         } else if (uiHints.getActivePanel() == GuiDef.Panel.STATUS || correctionOverride) {
             log.debug("Entering Stock Round UI type");
             activeWindow = statusWindow;
-            stockChartWindow.setVisible(true);
             setMeVisible(statusWindow, true);
             setMeToFront(statusWindow);
 
