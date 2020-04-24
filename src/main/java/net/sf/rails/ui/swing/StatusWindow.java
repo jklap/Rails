@@ -171,7 +171,7 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
         actionMenuItem.setPossibleAction(new GameAction(gameUIManager.getRoot(), GameAction.Mode.SAVE));
         fileMenu.add(actionMenuItem);
 
-        actionMenuItem = new ActionMenuItem(LocalText.getText("Reload"));
+        actionMenuItem = new ActionMenuItem(LocalText.getText("RELOAD"));
         actionMenuItem.setActionCommand(RELOAD_CMD);
         actionMenuItem.setMnemonic(KeyEvent.VK_R);
         actionMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.ALT_MASK));
@@ -188,7 +188,7 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
 
         fileMenu.addSeparator();
 
-        menuItem = new JCheckBoxMenuItem(LocalText.getText("AutoSaveLoad"));
+        menuItem = new JCheckBoxMenuItem(LocalText.getText("AUTO_SAVE_LOAD"));
         menuItem.setActionCommand(AUTOSAVELOAD_CMD);
         menuItem.setMnemonic(KeyEvent.VK_A);
         menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, ActionEvent.ALT_MASK));
@@ -197,7 +197,7 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
         fileMenu.add(menuItem);
         checkboxMenuItems.put(AUTOSAVELOAD_CMD, (JCheckBoxMenuItem) menuItem);
 
-        menuItem = new JMenuItem(LocalText.getText("SaveGameStatus"));
+        menuItem = new JMenuItem(LocalText.getText("SAVE_GAME_STATUS"));
         menuItem.setActionCommand(SAVESTATUS_CMD);
         menuItem.setMnemonic(KeyEvent.VK_G);
         menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, ActionEvent.ALT_MASK));
