@@ -66,6 +66,8 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
 
     protected static final String LOAD_CMD = "Load";
 
+    protected static final String CLOSE_CMD = "Close";
+
     protected static final String SAVE_CMD = "Save";
 
     protected static final String RELOAD_CMD = "Reload";
@@ -178,7 +180,15 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
         actionMenuItem.setPossibleAction(new GameAction(gameUIManager.getRoot(), GameAction.Mode.RELOAD));
         fileMenu.add(actionMenuItem);
 
-        JMenuItem menuItem = new JCheckBoxMenuItem(LocalText.getText("AutoSaveLoad"));
+        JMenuItem menuItem = new JMenuItem(CLOSE_CMD);
+        menuItem.setActionCommand(CLOSE_CMD);
+        menuItem.addActionListener(this);
+        menuItem.setEnabled(true);
+        fileMenu.add(menuItem);
+
+        fileMenu.addSeparator();
+
+        menuItem = new JCheckBoxMenuItem(LocalText.getText("AutoSaveLoad"));
         menuItem.setActionCommand(AUTOSAVELOAD_CMD);
         menuItem.setMnemonic(KeyEvent.VK_A);
         menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, ActionEvent.ALT_MASK));
@@ -200,7 +210,7 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
         //        exportItem.setActionCommand(EXPORT_CMD);
         //        exportItem.addActionListener(this);
         //        exportItem.setEnabled(true);
-        //        exportItem.setPossibleAction(new GameAction(GameAction.EXPORT));
+//                exportItem.setPossibleAction(new GameAction(GameAction.EXPORT));
         //        fileMenu.add(exportItem);
         //        fileMenu.addSeparator();
 
@@ -248,6 +258,8 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
         menuItem.addActionListener(this);
         optMenu.add(menuItem);
         checkboxMenuItems.put(menuItem.getName(), (JCheckBoxMenuItem) menuItem);
+
+        optMenu.addSeparator();
 
         menuItem = new JCheckBoxMenuItem(LocalText.getText("CONFIG"));
         menuItem.setName(CONFIG_CMD);
@@ -720,7 +732,7 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
                 }
             });
 
-            if (jfc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            if ( jfc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION ) {
                 // close the existing game
 
                 final File selectedFile = jfc.getSelectedFile();
@@ -732,6 +744,8 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
                     GameLoader.loadAndStartGame(selectedFile);
                 }).start();
             }
+        } else if (command.equals(CLOSE_CMD)) {
+            gameUIManager.closeGame();
         } else if (command.equals(REPORT_CMD)) {
             gameUIManager.reportWindow.setVisible(((JMenuItem) actor.getSource()).isSelected());
             gameUIManager.reportWindow.scrollDown();

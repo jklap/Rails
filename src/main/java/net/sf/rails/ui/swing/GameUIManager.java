@@ -124,6 +124,11 @@ public class GameUIManager implements DialogOwner {
 
     protected WindowSettings windowSettings;
 
+    private final Map<JFrame, Boolean> visibleWindows = new HashMap<>();
+    private JFrame windowToFront = null;
+
+    private boolean isShowing = true;
+
     protected boolean configuredStockChartVisibility = false;
 
     protected boolean previousStockChartVisibilityHint;
@@ -199,11 +204,6 @@ public class GameUIManager implements DialogOwner {
         return JOptionPane.showConfirmDialog(parent, LocalText.getText("CLOSE_WINDOW"),
                 LocalText.getText("Select"), JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION;
     }
-
-    private Map<JFrame, Boolean> visibleWindows = new HashMap<>();
-    private JFrame windowToFront = null;
-
-    private boolean isShowing = true;
 
     public void hideGame() {
         if ( !isShowing ) {
@@ -296,7 +296,6 @@ public class GameUIManager implements DialogOwner {
         if ( myTurn ) {
             // TODO: confirm game close if in myTurn and polling?
         }
-        OpenGamesManager.getInstance().removeGame(this);
         getWindowSettings().save();
         if ( startRoundWindow != null ) {
             startRoundWindow.close();
@@ -325,8 +324,13 @@ public class GameUIManager implements DialogOwner {
         }
         // TODO: terminate things like Discord
 
-        // clean up config items that are game play specific (ie like Discord)
-        railsRoot.getConfig().clearTransientConfig();
+        OpenGamesManager.getInstance().removeGame(this);
+
+        List<String> gamesLeft = OpenGamesManager.getInstance().getGameNames();
+        if ( gamesLeft.isEmpty() ) {
+            System.exit(0);
+        }
+        OpenGamesManager.getInstance().makeGameActive(gamesLeft.get(0));
     }
 
     public void terminate() {
