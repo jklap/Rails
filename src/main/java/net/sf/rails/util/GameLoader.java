@@ -211,54 +211,31 @@ public class GameLoader {
         // Read game actions into gameData.listOfActions
         // read next object in stream
         Object actionObject = null;
-        while (true) { // Single-pass loop.
-            try {
-                actionObject = ois.readObject();
-            } catch (EOFException e) {
-                // Allow saved file at start of game (with no actions).
-                break;
+        try {
+            List<PossibleAction> actions = Lists.newArrayList();
 
-            }
-            if (actionObject instanceof List) {
-                // Until Rails 1.3: one List of PossibleAction
-                gameIOData.setActions((List<PossibleAction>) actionObject);
-            } else if (actionObject instanceof PossibleAction) {
-                List<PossibleAction> actions = Lists.newArrayList();
-                // Since Rails 1.3.1: separate PossibleActionsObjects
-                while (actionObject instanceof PossibleAction) {
-                    actions.add((PossibleAction) actionObject);
-                    try {
-                        actionObject = ois.readObject();
-                    } catch (EOFException e) {
-                        break;
-                    }
+            actionObject = ois.readObject();
+            while ( actionObject instanceof PossibleAction ) {
+                actions.add((PossibleAction) actionObject);
+                try {
+                    actionObject = ois.readObject();
                 }
-                gameIOData.setActions(actions);
+                catch (EOFException e) {
+                    actionObject = null;
+                    break;
+                }
             }
-            break;
+            gameIOData.setActions(actions);
         }
-        /**
-         todo: the code below is far from perfect, but robust
-         */
+        catch (EOFException e) {
+            // Allow saved file at start of game (with no actions).
+        }
 
         // at the end of file user comments are added as SortedMap
         if (actionObject instanceof SortedMap) {
             // FIXME (Rails2.0): Do something with userComments
             //gameData.userComments = (SortedMap<Integer, String>) actionObject;
             log.debug("file load: found user comments");
-        } else {
-            try {
-                Object object = ois.readObject();
-                if (object instanceof SortedMap) {
-                    // FIXME (Rails2.0): Do something with userComments
-                    // gameData.userComments = (SortedMap<Integer, String>) actionObject;
-                    log.debug("file load: found user comments");
-                }
-            } catch (IOException e) {
-                // continue without comments, if any IOException occurs
-                // sometimes not only the EOF Exception is raised
-                // but also the java.io.StreamCorruptedException: invalid type code
-            }
         }
     }
 
