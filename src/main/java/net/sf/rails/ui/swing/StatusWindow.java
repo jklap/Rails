@@ -633,6 +633,7 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
 
         pack();
 
+        log.warn("here");
         toFront();
     }
 

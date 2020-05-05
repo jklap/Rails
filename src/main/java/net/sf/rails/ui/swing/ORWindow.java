@@ -272,6 +272,7 @@ public class ORWindow extends DockingFrame implements ActionPerformer {
             }
         }
 
+        log.warn("here");
         setVisible(true);
         requestFocus();
     }

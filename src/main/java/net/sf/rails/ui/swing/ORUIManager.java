@@ -575,6 +575,7 @@ public class ORUIManager implements DialogOwner {
         }
 
         if (options.size() > 0) {
+            log.warn("here");
             orWindow.setVisible(true);
             orWindow.toFront();
 
