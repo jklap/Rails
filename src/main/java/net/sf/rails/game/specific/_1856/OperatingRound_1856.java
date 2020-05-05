@@ -197,8 +197,8 @@ public class OperatingRound_1856 extends OperatingRound {
         if (remainder > presCash) {
             // Start a share selling round
             int cashToBeRaisedByPresident = remainder - presCash;
-            log.info("A share selling round must be started as the president cannot pay ${} loan interest", remainder);
-            log.info("President has ${}, so ${} must be added", presCash, cashToBeRaisedByPresident);
+            log.debug("A share selling round must be started as the president cannot pay ${} loan interest", remainder);
+            log.debug("President has ${}, so ${} must be added", presCash, cashToBeRaisedByPresident);
             savedAction = action;
             gameManager.startShareSellingRound(operatingCompany.value().getPresident(),
                     cashToBeRaisedByPresident, operatingCompany.value(), false);
@@ -515,7 +515,7 @@ public class OperatingRound_1856 extends OperatingRound {
 
         for (PublicCompany c : operatingCompanies.view()) {
             if (c.isClosed()) {
-                log.info("{} is closed", c.getId());
+                log.debug("{} is closed", c.getId());
             } else {
                 log.debug("{} is operating", c.getId());
             }

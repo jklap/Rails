@@ -274,7 +274,7 @@ public final class RevenueAdapter implements Runnable {
                 }
             }
         }
-        log.info("RA: RevenueBonuses = {}", revenueBonuses);
+        log.debug("RA: RevenueBonuses = {}", revenueBonuses);
     }
 
     /**
@@ -384,7 +384,7 @@ public final class RevenueAdapter implements Runnable {
             for ( NetworkEdge edgeInSet : entry.getValue().set ) {
                 edgeString.append(edgeInSet.toFullInfoString()).append("\n");
             }
-            log.info(edgeString.toString());
+            log.debug(edgeString.toString());
         }
         log.debug("RA: maximum edges in a set = {}", maxNbEdges);
         return maxNbEdges;
@@ -510,7 +510,7 @@ public final class RevenueAdapter implements Runnable {
             if (bonus.addToRevenueCalculator(rc, id, rcVertices, trains, phase)) id ++;
         }
 
-        log.info("RA: edgeTravelSets:{}", edgeTravelSets);
+        log.debug("RA: edgeTravelSets:{}", edgeTravelSets);
 
         // set edge sets
         if (useMultiGraph) {

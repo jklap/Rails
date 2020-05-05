@@ -381,7 +381,7 @@ public class CGRFormationRound extends SwitchableUIRound {
         ReportBuffer.add(this, message);
 
         Portfolio.moveAll(certs, scrapHeap.getParent());
-        log.info("{} CGR shares are now in play", cgrSharesUsed);
+        log.debug("{} CGR shares are now in play", cgrSharesUsed);
 
         // If no more than 10 shares are in play, the CGR share
         // unit becomes 10%; otherwise it stays 5%.

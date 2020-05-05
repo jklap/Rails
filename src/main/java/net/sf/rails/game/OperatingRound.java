@@ -853,7 +853,7 @@ public class OperatingRound extends Round implements Observer {
                         gameManager.setSkipDone(GameDef.OrStep.TRADE_SHARES);
                         log.debug("If the next saved action is 'Done', skip it");
                     }
-                    log.info("Skipping Treasury share trading step");
+                    log.debug("Skipping Treasury share trading step");
                     continue;
                 }
 
@@ -1335,8 +1335,8 @@ public class OperatingRound extends Round implements Observer {
             if (remainder > presCash) {
                 // Start a share selling round
                 int cashToBeRaisedByPresident = remainder - presCash;
-                log.info("A share selling round must be started as the president cannot pay ${} loan repayment", remainder);
-                log.info("President has ${}, so ${} must be added", presCash, cashToBeRaisedByPresident);
+                log.debug("A share selling round must be started as the president cannot pay ${} loan repayment", remainder);
+                log.debug("President has ${}, so ${} must be added", presCash, cashToBeRaisedByPresident);
                 savedAction = action;
 
                 gameManager.startShareSellingRound(

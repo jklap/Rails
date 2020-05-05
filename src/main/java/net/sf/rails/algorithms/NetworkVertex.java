@@ -240,7 +240,7 @@ public final class NetworkVertex implements Comparable<NetworkVertex> {
         // check if it has to be removed because it is run-to only
         // if company == null, then no vertex gets removed
         if (company != null && !stop.isRunToAllowedFor(company)) {
-           log.info("Vertex is removed");
+           log.debug("Vertex is removed");
            return false;
         }
 

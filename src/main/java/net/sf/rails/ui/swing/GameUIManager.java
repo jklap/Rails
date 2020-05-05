@@ -521,7 +521,7 @@ public class GameUIManager implements DialogOwner {
             // Process the action on the server
             result = previousResult = processOnServer(action);
 
-            // Process any autosaving and turn relinquishing, resp. autoloading and turn pickup
+            // Process any auto-saving and turn relinquishing, resp. auto-loading and turn pickup
             if (autoSaveLoadInitialized && autoSaveLoadStatus != AutoLoadPoller.OFF) {
                 boolean wasMyTurn = oldPlayer.getId().equals(localPlayerName);
                 Player newPlayer = getCurrentPlayer();
@@ -545,15 +545,13 @@ public class GameUIManager implements DialogOwner {
                                             LocalText.getText("YourTurn", localPlayerName)),
                                     null);
                         }
-                        // TODO: set check in StatusWindow for game to indicate a waiting turn??
-
                         log.info("Resuming turn as {}", localPlayerName);
                     } else {
                         log.info("{} now has the turn", newPlayer.getId());
                     }
                 } else {
                     // first time through after a game load needs to set myTurn
-                    log.info("{} keeps the turn", oldPlayer.getId());
+                    log.debug("{} keeps the turn", oldPlayer.getId());
                 }
 
                 OpenGamesManager.getInstance().updatedGameState(this);
@@ -1121,8 +1119,7 @@ public class GameUIManager implements DialogOwner {
     public void saveGame(GameAction saveAction) {
         // copy latest report buffer entries to clipboard
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-        StringSelection reportText = new StringSelection(
-                getRoot().getReportManager().getReportBuffer().getRecentPlayer());
+        StringSelection reportText = new StringSelection(getRoot().getReportManager().getReportBuffer().getRecentPlayer());
         clipboard.setContents(reportText, null);
 
         JFileChooser jfc = new JFileChooser();

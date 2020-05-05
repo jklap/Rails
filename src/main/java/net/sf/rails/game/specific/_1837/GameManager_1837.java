@@ -66,7 +66,7 @@ public class GameManager_1837 extends GameManager {
             Phase currentPhase = getRoot().getPhaseManager().getCurrentPhase();
                 if (currentPhase == null) log.error ("Current Phase is null??", new Exception (""));
                 numOfORs.set(currentPhase.getNumberOfOperatingRounds());
-                log.info("Phase={} ORs={}", currentPhase.toText(), numOfORs);
+                log.debug("Phase={} ORs={}", currentPhase.toText(), numOfORs);
 
             // Create a new OperatingRound (never more than one Stock Round)
             // OperatingRound.resetRelativeORNumber();

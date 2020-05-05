@@ -239,7 +239,7 @@ public abstract class DockingFrame extends JFrame {
         try {
             control.save(LAYOUT_NAME_CURRENT);
             control.writeXML(layoutFile);
-            log.info("Layout saved to {}", layoutFile.getName());
+            log.debug("Layout saved to {}", layoutFile.getName());
         } catch (Exception e) {
             log.error("Layout could not be saved to {}", layoutFile.getName());
         }
@@ -255,7 +255,7 @@ public abstract class DockingFrame extends JFrame {
         try {
             control.readXML(layoutFile);
             control.load(LAYOUT_NAME_CURRENT);
-            log.info("Layout loaded from {}", layoutFile.getName());
+            log.debug("Layout loaded from {}", layoutFile.getName());
         } catch (Exception e) {
             if (!isTentative) {
                 JOptionPane.showMessageDialog(this,

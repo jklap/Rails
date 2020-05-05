@@ -486,7 +486,7 @@ public class GameManager extends RailsManager implements Configurable, Owner {
                         if (currentPhase.getNumberOfOperatingRounds() != numOfORs.value()) {
                             numOfORs.set(currentPhase.getNumberOfOperatingRounds());
                         }
-                        log.info("Phase={} ORs={}", currentPhase.toText(), numOfORs);
+                        log.debug("Phase={} ORs={}", currentPhase.toText(), numOfORs);
 
                         // Create a new OperatingRound (never more than one Stock Round)
                         // OperatingRound.resetRelativeORNumber();
