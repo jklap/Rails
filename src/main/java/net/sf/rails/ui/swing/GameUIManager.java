@@ -277,12 +277,12 @@ public class GameUIManager implements DialogOwner {
             gameConfigWindow.setVisible(visibleWindows.get(gameConfigWindow));
         }
 
-        if ( currentDialog != null ) {
-            currentDialog.setVisible(true);
-        }
-
         if ( windowToFront != null ) {
             windowToFront.toFront();
+        }
+
+        if ( currentDialog != null ) {
+            currentDialog.setVisible(true);
         }
 
         isShowing = true;
@@ -882,8 +882,8 @@ public class GameUIManager implements DialogOwner {
         }
 
         if (options.size() > 0) {
-            orWindow.setVisible(true);
-            orWindow.toFront();
+            setMeVisible(orWindow, true);
+            setMeToFront(orWindow);
 
             CheckBoxDialog dialog = new CheckBoxDialog(EXCHANGE_TOKENS_DIALOG,
                     this,
@@ -892,7 +892,6 @@ public class GameUIManager implements DialogOwner {
                     prompt,
                     options.toArray(new String[0]));
             setCurrentDialog(dialog, action);
-
         }
     }
 
@@ -1485,6 +1484,10 @@ public class GameUIManager implements DialogOwner {
 
     public String getLastSavedFilename() {
         return lastSavedFilename;
+    }
+
+    public String getSaveDirectory() {
+        return saveDirectory;
     }
 
     public class PlayerOrderView implements Observer {

@@ -1,6 +1,8 @@
 package net.sf.rails.game;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,11 +11,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.sf.rails.common.Config;
 import net.sf.rails.ui.swing.GameUIManager;
 
 public class OpenGamesManager {
+    private static final Logger log = LoggerFactory.getLogger(OpenGamesManager.class);
 
     private static final OpenGamesManager instance = new OpenGamesManager();
 
@@ -46,11 +51,13 @@ public class OpenGamesManager {
     public static String getGameIdentifier(GameUIManager gameUIManager) {
         String key = gameUIManager.getRoot().getGameData().getUsersGameName();
         if ( StringUtils.isBlank(key) ) {
-            File saveDirectory = new File(Config.get("save.directory"));
-            int dirPathLength = saveDirectory.getPath().length();
+            String saveDirectory = gameUIManager.getSaveDirectory();
 
             if ( gameUIManager.getLastSavedFilename() != null ) {
-                key = new File(gameUIManager.getLastSavedFilename()).getParent().substring(dirPathLength + 1);
+                // if the file wasn't saved in the saved directory then it's just a filename and we don't know where it is located..
+                log.warn("checking {}", saveDirectory);
+//                key = new File(gameUIManager.getLastSavedFilename()).getParent().substring(dirPathLength + 1);
+                key = saveDirectory;
             } else {
                 // TODO: figure out how to update this once a game has been saved
                 key = "New Game";
