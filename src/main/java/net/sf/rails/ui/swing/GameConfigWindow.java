@@ -39,14 +39,17 @@ public class GameConfigWindow extends BaseConfigWindow {
         add(buttonPanel, "South");
     }
 
+    @Override
     protected Map<String, List<ConfigItem>> getConfigSections() {
         return cm.getGameConfigSections();
     }
 
+     @Override
      protected String getConfigValue(String name) {
         return config.get(name);
      }
 
+    @Override
     protected void setupButtonPanel() {
         buttonPanel.removeAll();
 
@@ -69,7 +72,7 @@ public class GameConfigWindow extends BaseConfigWindow {
 
     private boolean saveConfig() {
         // check for parent if initMethods have to be called
-        boolean initMethods = parent instanceof StatusWindow;
+        boolean initMethods = parentWindow instanceof StatusWindow;
 
         // save depending (either as newProfile or as existing)
         boolean result = cm.saveConfig(config, initMethods);
@@ -86,17 +89,19 @@ public class GameConfigWindow extends BaseConfigWindow {
         return result;
     }
 
+    @Override
     protected void isDirty(ConfigItem configItem) {
         super.isDirty(configItem);
         saveButton.setEnabled(true);
         resetButton.setEnabled(true);
     }
 
+    @Override
     protected void closeConfig() {
         super.closeConfig();
 
-        if (parent instanceof StatusWindow) {
-            ((StatusWindow)parent).setMenuItemCheckbox(StatusWindow.GAME_CONFIG_CMD, false);
+        if ( parentWindow instanceof StatusWindow) {
+            ((StatusWindow) parentWindow).setMenuItemCheckbox(StatusWindow.GAME_CONFIG_CMD, false);
         }
     }
 

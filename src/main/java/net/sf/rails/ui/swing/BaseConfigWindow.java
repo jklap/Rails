@@ -32,7 +32,7 @@ public abstract class BaseConfigWindow extends JFrame  {
     //(e.g. specifying file names >2000px)
     protected static final int MAX_FIELD_WIDTH = 200;
 
-    protected final Window parent;
+    protected final Window parentWindow;
 
     protected JTabbedPane configPane;
 
@@ -42,17 +42,17 @@ public abstract class BaseConfigWindow extends JFrame  {
 
     protected boolean isDirty = false;
 
-    abstract protected Map<String, List<ConfigItem>> getConfigSections();
+    protected abstract Map<String, List<ConfigItem>> getConfigSections();
 
-    abstract protected String getConfigValue(String name);
+    protected abstract String getConfigValue(String name);
 
-    abstract protected void setupButtonPanel();
+    protected abstract void setupButtonPanel();
 
-    public BaseConfigWindow(Window parent) {
+    public BaseConfigWindow(Window parentWindow) {
         cm = ConfigManager.getInstance();
 
         // store for various handling issues
-        this.parent = parent;
+        this.parentWindow = parentWindow;
 
         // hide on close and inform
         this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
@@ -92,7 +92,7 @@ public abstract class BaseConfigWindow extends JFrame  {
         Map<String, List<ConfigItem>> configSections = getConfigSections();
         int maxElements = getMaxElementsInPanels(configSections);
 
-        for (String sectionName:configSections.keySet()) {
+        for (Map.Entry<String, List<ConfigItem>> entry :configSections.entrySet()) {
             JPanel newPanel = new JPanel();
             newPanel.setLayout(new GridBagLayout());
             GridBagConstraints gbc = new GridBagConstraints();
@@ -104,7 +104,7 @@ public abstract class BaseConfigWindow extends JFrame  {
             //gbc.anchor = GridBagConstraints.FIRST_LINE_START;
             gbc.anchor = GridBagConstraints.NORTHWEST;
 
-            for (ConfigItem item:configSections.get(sectionName)) {
+            for (ConfigItem item: entry.getValue()) {
                 gbc.gridx = 0;
                 gbc.gridy++;
                 defineElement(newPanel, item, gbc);
@@ -116,7 +116,7 @@ public abstract class BaseConfigWindow extends JFrame  {
                 newPanel.add(emptyLabel, gbc);
             }
             JScrollPane slider = new JScrollPane(newPanel);
-            configPane.addTab(LocalText.getText("Config.section." + sectionName), slider);
+            configPane.addTab(LocalText.getText("Config.section." + entry.getKey()), slider);
         }
     }
 
@@ -167,6 +167,7 @@ public abstract class BaseConfigWindow extends JFrame  {
                 boolean selected = Util.parseBoolean(configValue);
                 checkBox.setSelected(selected);
                 checkBox.addFocusListener(new FocusAdapter() {
+                    @Override
                     public void focusLost(FocusEvent arg0) {
                         String newValue = checkBox.isSelected() ? "yes" : "no";
                         checkAndSet(item, newValue);
@@ -225,6 +226,7 @@ public abstract class BaseConfigWindow extends JFrame  {
                 comboBox.setSelectedItem(configValue);
                 comboBox.setToolTipText(toolTip);
                 comboBox.addFocusListener(new FocusAdapter() {
+                      @Override
                       public void focusLost(FocusEvent arg0) {
                           String newValue = (String)comboBox.getSelectedItem();
                           checkAndSet(item, newValue);
@@ -310,6 +312,7 @@ public abstract class BaseConfigWindow extends JFrame  {
                 final JFormattedTextField textField = new JFormattedTextField();
                 textField.setValue(configValue);
                 textField.addFocusListener(new FocusAdapter() {
+                    @Override
                     public void focusLost(FocusEvent arg0) {
                         checkAndSet(item, textField.getText());
                     }
@@ -326,6 +329,7 @@ public abstract class BaseConfigWindow extends JFrame  {
         if (infoText != null) {
             JLabel infoIcon = new JLabel(RailsIcon.INFO.smallIcon);
             infoIcon.addMouseListener(new MouseAdapter() {
+                @Override
                 public void mousePressed(MouseEvent e) {
                     final JDialog dialog = new JDialog(BaseConfigWindow.this, false);
                     final JOptionPane optionPane = new JOptionPane();

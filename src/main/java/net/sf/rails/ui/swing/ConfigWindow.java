@@ -41,6 +41,7 @@ class ConfigWindow extends BaseConfigWindow {
         add(buttonPanel, "South");
     }
 
+    @Override
     public void init(final boolean startUp) {
         setupProfilePanel();
         super.init(startUp);
@@ -76,10 +77,12 @@ class ConfigWindow extends BaseConfigWindow {
         return cm.getConfigSections();
     }
 
+     @Override
      protected String getConfigValue(String name) {
         return Config.get(name);
      }
 
+    @Override
     protected void setupButtonPanel() {
         buttonPanel.removeAll();
 
@@ -116,8 +119,8 @@ class ConfigWindow extends BaseConfigWindow {
                         String activeProfile = cm.getActiveProfile();
                         if (cm.deleteActiveProfile()) {
                             // delete item from selection in GameSetupWindow
-                            if (parent instanceof GameSetupWindow) {
-                                ((GameSetupWindow) parent).removeConfigureProfile(activeProfile);
+                            if ( parentWindow instanceof GameSetupWindow) {
+                                ((GameSetupWindow) parentWindow).removeConfigureProfile(activeProfile);
                             }
                             changeProfile(cm.getActiveProfile());
                         }
@@ -130,8 +133,8 @@ class ConfigWindow extends BaseConfigWindow {
     private void changeProfile(String profileName) {
         // TODO: dirty check and alert if so
         cm.changeProfile(profileName);
-        if (parent instanceof GameSetupWindow) {
-            ((GameSetupWindow) parent).changeConfigureProfile(profileName);
+        if ( parentWindow instanceof GameSetupWindow) {
+            ((GameSetupWindow) parentWindow).changeConfigureProfile(profileName);
         }
         repaintLater();
         isDirty = false;
@@ -139,7 +142,7 @@ class ConfigWindow extends BaseConfigWindow {
 
     private boolean saveProfile(String newProfile) {
         // check for parent if initMethods have to be called
-        boolean initMethods = parent instanceof StatusWindow;
+        boolean initMethods = parentWindow instanceof StatusWindow;
 
         // save depending (either as newProfile or as existing)
         boolean result;
@@ -184,8 +187,8 @@ class ConfigWindow extends BaseConfigWindow {
             // only change if save was possible
             if (result) {
                 // add new item to selection in GameSetupWindow
-                if (parent instanceof GameSetupWindow) {
-                    ((GameSetupWindow) parent).addConfigureProfile(newProfile);
+                if ( parentWindow instanceof GameSetupWindow) {
+                    ((GameSetupWindow) parentWindow).addConfigureProfile(newProfile);
                 }
                 changeProfile(newProfile);
                 isDirty = false;
@@ -194,11 +197,12 @@ class ConfigWindow extends BaseConfigWindow {
         return result;
     }
 
+    @Override
     protected void closeConfig() {
         super.closeConfig();
 
-        if (parent instanceof StatusWindow) {
-            ((StatusWindow)parent).setMenuItemCheckbox(StatusWindow.CONFIG_CMD, false);
+        if ( parentWindow instanceof StatusWindow) {
+            ((StatusWindow) parentWindow).setMenuItemCheckbox(StatusWindow.CONFIG_CMD, false);
         }
     }
 
