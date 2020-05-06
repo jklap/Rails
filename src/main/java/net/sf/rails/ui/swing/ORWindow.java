@@ -272,9 +272,8 @@ public class ORWindow extends DockingFrame implements ActionPerformer {
             }
         }
 
-        log.warn("here");
-        setVisible(true);
-        requestFocus();
+        gameUIManager.setMeVisible(this, true);
+        gameUIManager.setMeToFront(this);
     }
 
 // Remark: one of the methods to implement the ActionPerformer Interface

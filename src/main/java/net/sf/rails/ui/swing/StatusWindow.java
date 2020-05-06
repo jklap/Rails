@@ -632,9 +632,7 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
         if (currentRound instanceof EndOfGameRound) endOfGame();
 
         pack();
-
-        log.warn("here");
-        toFront();
+        gameUIManager.setMeToFront(this);
     }
 
     public void disableButtons () {
