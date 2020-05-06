@@ -197,7 +197,7 @@ public class StartRoundWindow extends JFrame implements ActionListener, KeyListe
         setLocation(300, 150);
         setSize(275, 325);
         gameUIManager.setMeVisible(this, true);
-        requestFocus();
+        gameUIManager.setMeToFront(this);
 
         addKeyListener(this);
 
@@ -543,7 +543,7 @@ public class StartRoundWindow extends JFrame implements ActionListener, KeyListe
         passButton.setEnabled(passAllowed);
 
         pack(); // to avoid not displaying after label size changes
-        requestFocus();
+        gameUIManager.setMeToFront(this);
     }
 
     @Override

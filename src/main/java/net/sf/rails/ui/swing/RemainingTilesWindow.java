@@ -168,7 +168,7 @@ public class RemainingTilesWindow extends JFrame implements WindowListener,
 
     public void activate() {
         setVisible(true);
-        requestFocus();
+        toFront();
     }
 
     /**

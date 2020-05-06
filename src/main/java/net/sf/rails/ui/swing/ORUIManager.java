@@ -1345,15 +1345,14 @@ public class ORUIManager implements DialogOwner {
             //if (possibleActions.contains(LayTile.class)) {
 
             orPanel.initTileLayingStep();
-
-            orWindow.requestFocus();
+            gameUIManager.setMeToFront(orWindow);
 
             //} else if (possibleActions.contains(LayBaseToken.class)) {
         } else if (orStep == GameDef.OrStep.LAY_TOKEN) {
 
-            orWindow.requestFocus();
-
             orPanel.initTokenLayingStep();
+            gameUIManager.setMeToFront(orWindow);
+
             log.debug("BaseTokens can be laid");
 
         } else if (possibleActions.contains(SetDividend.class)

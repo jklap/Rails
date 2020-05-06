@@ -284,7 +284,7 @@ public class ORWindow extends DockingFrame implements ActionPerformer {
         if (!(gameUIManager.getCurrentRound() instanceof OperatingRound)) return;
 
         orUIManager.updateStatus(myTurn);
-        requestFocus();
+        gameUIManager.setMeToFront(this);
     }
 
     /**
