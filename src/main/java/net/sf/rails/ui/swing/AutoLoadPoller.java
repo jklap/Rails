@@ -8,7 +8,9 @@ import javax.swing.SwingUtilities;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
+import net.sf.rails.game.OpenGamesManager;
 import rails.game.action.GameAction;
 
 
@@ -45,14 +47,15 @@ public class AutoLoadPoller extends Thread {
         this.pollingInterval = pollingInterval;
 
         lastSavedFilenameFilepath = saveDirectory + "/" + savePrefix + "." + GameUIManager.DEFAULT_SAVE_POLLING_EXTENSION;
-
-        log.debug("Poller own postfix: {}", ownPostfix);
-        log.debug("Poller last-filename path: {}", lastSavedFilenameFilepath);
     }
 
     @Override
     public void run () {
+        MDC.put("gameId", OpenGamesManager.getGameIdentifier(guiMgr));
+
         log.info ("AutoLoadPoller started");
+        log.debug("Poller own postfix: {}", ownPostfix);
+        log.debug("Poller last-filename path: {}", lastSavedFilenameFilepath);
 
         int currentPollInterval = 1;
         int secs, sleepTime;

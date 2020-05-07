@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import net.sf.rails.common.Config;
 import net.sf.rails.ui.swing.GameUIManager;
@@ -82,6 +83,7 @@ public class OpenGamesManager {
     public void makeGameActive(String name) {
         if ( openGames.containsKey(name) ) {
             openGames.values().forEach(GameUIManager::hideGame);
+            MDC.put("gameId", name);
             openGames.get(name).showGame();
         }
     }
