@@ -701,8 +701,8 @@ public class GameUIManager implements DialogOwner {
                     boolean stockChartVisibilityHint = hint.isVisible() || configuredStockChartVisibility;
                     if (stockChartVisibilityHint != previousStockChartVisibilityHint) {
                         setMeVisible(stockChartWindow, stockChartVisibilityHint);
-                        previousStockChartVisibilityHint = stockChartVisibilityHint;
                         statusWindow.setMenuItemCheckbox(StatusWindow.MARKET_CMD, stockChartVisibilityHint);
+                        previousStockChartVisibilityHint = stockChartVisibilityHint;
                     }
                     break;
                 case STATUS:
@@ -717,8 +717,8 @@ public class GameUIManager implements DialogOwner {
                     boolean orWindowVisibilityHint = hint.isVisible();
                     if (orWindowVisibilityHint != previousORWindowVisibilityHint) {
                         setMeVisible(orWindow, orWindowVisibilityHint);
-                        previousORWindowVisibilityHint = orWindowVisibilityHint;
                         statusWindow.setMenuItemCheckbox(StatusWindow.MAP_CMD, orWindowVisibilityHint);
+                        previousORWindowVisibilityHint = orWindowVisibilityHint;
                     }
                     if (orWindowVisibilityHint) setMeToFront(orWindow);
                     break;

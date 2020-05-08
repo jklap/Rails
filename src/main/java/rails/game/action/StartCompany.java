@@ -17,8 +17,7 @@ public class StartCompany extends BuyCertificate {
 
     public static final long serialVersionUID = 1L;
 
-    public StartCompany(PublicCompany company, int[] prices,
-            int maximumNumber) {
+    public StartCompany(PublicCompany company, int[] prices, int maximumNumber) {
         super(company, company.getPresidentsShare().getShare(), null, 0, maximumNumber);
         this.startPrices = prices.clone();
     }
@@ -27,8 +26,7 @@ public class StartCompany extends BuyCertificate {
         this(company, startPrice, 1);
     }
 
-    public StartCompany(PublicCompany company, int price,
-            int maximumNumber) {
+    public StartCompany(PublicCompany company, int price, int maximumNumber) {
         super(company, company.getPresidentsShare().getShare(), null, 0, maximumNumber);
         this.price = price;
     }
