@@ -42,6 +42,7 @@ import net.sf.rails.ui.swing.elements.ActionCheckBoxMenuItem;
 import net.sf.rails.ui.swing.elements.ActionMenuItem;
 import net.sf.rails.ui.swing.elements.RailsIcon;
 import net.sf.rails.util.GameLoader;
+import net.sf.rails.util.logback.LogUtils;
 import rails.game.action.ActionTaker;
 import rails.game.action.DiscardTrain;
 import rails.game.action.GameAction;
@@ -102,6 +103,9 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
 
     protected static final String PASS_CMD = "Pass";
     protected static final String AUTOPASS_CMD = "Autopass";
+    public static final String SAVE_LOGS = "Save Logs";
+    public static final String DEVELOPER_MENU = "Developer";
+    public static final String GAMES_MENU = "Games";
 
     protected JPanel buttonPanel;
 
@@ -155,7 +159,7 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
 
         actionMenuItem = new ActionMenuItem(LOAD_CMD);
         actionMenuItem.setActionCommand(LOAD_CMD);
-        actionMenuItem.addActionListener(this);
+        actionMenuItem.addActionListener(e -> loadNewGame());
         actionMenuItem.setEnabled(true);
         actionMenuItem.setPossibleAction(new GameAction(gameUIManager.getRoot(), GameAction.Mode.LOAD));
         fileMenu.add(actionMenuItem);
@@ -182,7 +186,7 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
 
         JMenuItem menuItem = new JMenuItem(CLOSE_CMD);
         menuItem.setActionCommand(CLOSE_CMD);
-        menuItem.addActionListener(this);
+        menuItem.addActionListener(actionEvent -> gameUIManager.closeGame());
         menuItem.setEnabled(true);
         fileMenu.add(menuItem);
 
@@ -192,7 +196,7 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
         menuItem.setActionCommand(AUTOSAVELOAD_CMD);
         menuItem.setMnemonic(KeyEvent.VK_A);
         menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, ActionEvent.ALT_MASK));
-        menuItem.addActionListener(this);
+        menuItem.addActionListener(actionEvent -> gameUIManager.autoSaveLoadGame());
         menuItem.setEnabled(true);
         fileMenu.add(menuItem);
         checkboxMenuItems.put(AUTOSAVELOAD_CMD, (JCheckBoxMenuItem) menuItem);
@@ -201,7 +205,7 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
         menuItem.setActionCommand(SAVESTATUS_CMD);
         menuItem.setMnemonic(KeyEvent.VK_G);
         menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, ActionEvent.ALT_MASK));
-        menuItem.addActionListener(this);
+        menuItem.addActionListener(actionEvent -> gameUIManager.saveGameStatus());
         menuItem.setEnabled(true);
         fileMenu.add(menuItem);
 
@@ -219,7 +223,7 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
         menuItem.setActionCommand(QUIT_CMD);
         menuItem.setMnemonic(KeyEvent.VK_Q);
         menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.ALT_MASK));
-        menuItem.addActionListener(this);
+        menuItem.addActionListener(actionEvent -> gameUIManager.terminate());
         fileMenu.add(menuItem);
 
         menuBar.add(fileMenu);
@@ -328,19 +332,20 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
         menuBar.add(specialMenu);
 
         if ( Config.isDevelop() ) {
-            developerMenu = new JMenu("Developer");
-            developerMenu.setName("Developer");
+            developerMenu = new JMenu(DEVELOPER_MENU);
             menuBar.add(developerMenu);
 
             ActionMenuItem saveLogsItem = new ActionMenuItem("Save Logs");
-            saveLogsItem.setName("Save Logs");
-            saveLogsItem.setActionCommand("Save Logs");
-            saveLogsItem.addActionListener(this);
+            saveLogsItem.addActionListener(actionEvent -> gameUIManager.saveLogs());
             developerMenu.add(saveLogsItem);
+
+            ActionMenuItem traceMenuItem = new ActionMenuItem("Toggle Trace Logging");
+            traceMenuItem.addActionListener(actionEvent -> LogUtils.toggleTraceLogging());
+            developerMenu.add(traceMenuItem);
         }
 
-        gameMenu = new JMenu("Games");
-        gameMenu.setName("Games");
+        gameMenu = new JMenu(GAMES_MENU);
+        gameMenu.setName(GAMES_MENU);
         menuBar.add(gameMenu);
 
         updateGamesMenu();
@@ -536,13 +541,17 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
     public boolean setupFor(RoundFacade round) {
         currentRound = round;
 
+        // TODO: this needs to be reviewed as we are simply checking checkboxes not changing visibility
         if (round instanceof StartRound) {
-            setMenuItemCheckbox(MAP_CMD, false);
+            log.warn("checks: Start");
             setMenuItemCheckbox(MARKET_CMD, false);
+            setMenuItemCheckbox(MAP_CMD, false);
         } else if (round instanceof StockRound) {
+            log.warn("checks: SR");
             setMenuItemCheckbox(MARKET_CMD, true);
             setMenuItemCheckbox(MAP_CMD, false);
         } else if (round instanceof OperatingRound) {
+            log.warn("checks: OR");
             setMenuItemCheckbox(MAP_CMD, true);
             setMenuItemCheckbox(MARKET_CMD, false);
         }
@@ -684,16 +693,48 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
         }
     }
 
+    // TODO: Does this really belong in StatusWindow?
+    protected void loadNewGame() {
+        String saveDirectory = Config.get("save.directory");
+        JFileChooser jfc = new JFileChooser();
+        jfc.setCurrentDirectory(new File(saveDirectory));
+        jfc.setFileFilter(new FileFilter() {
+            @Override
+            public boolean accept(File f) {
+                // TODO: need to filter like GameSetupController.isOurs() does
+                return true;
+            }
+
+            @Override
+            public String getDescription() {
+                return null;
+            }
+        });
+
+        if ( jfc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION ) {
+            // close the existing game
+
+            final File selectedFile = jfc.getSelectedFile();
+            //start in new thread so that swing thread is not used for game setup
+            new Thread(() -> {
+                // close the existing game (which ironically will include us)
+                gameUIManager.hideGame();
+                // start the new game
+                GameLoader.loadAndStartGame(selectedFile);
+            }).start();
+        }
+    }
+
     @Override
     public void actionPerformed(ActionEvent actor) {
         String command = actor.getActionCommand();
-        List<PossibleAction> actions = null;
-        if (actor.getSource() instanceof ActionTaker) {
-            actions = ((ActionTaker) actor.getSource()).getPossibleActions();
-        }
         PossibleAction executedAction = null;
-        if (actions != null && actions.size() > 0) {
-            executedAction = actions.get(0);
+
+        if (actor.getSource() instanceof ActionTaker) {
+            List<PossibleAction> actions = ((ActionTaker) actor.getSource()).getPossibleActions();
+            if (actions != null && actions.size() > 0) {
+                executedAction = actions.get(0);
+            }
         }
 
         if (command.equals(BUY_CMD)) {
@@ -706,46 +747,9 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
             }
             process(executedAction);
 
-        } else if (executedAction instanceof UseSpecialProperty
-                || executedAction instanceof RequestTurn) {
+        } else if (executedAction instanceof UseSpecialProperty || executedAction instanceof RequestTurn) {
             process(executedAction);
 
-        } else if (command.equals(QUIT_CMD)) {
-            gameUIManager.terminate();
-        } else if ( command.equals(NEW_CMD) ) {
-            // TODO
-        } else if ( command.equals(LOAD_CMD) ) {
-            // TODO: does this really belong here?
-            String saveDirectory = Config.get("save.directory");
-            JFileChooser jfc = new JFileChooser();
-            jfc.setCurrentDirectory(new File(saveDirectory));
-            jfc.setFileFilter(new FileFilter() {
-                @Override
-                public boolean accept(File f) {
-                    // TODO: need to filter like GameSetupController.isOurs() does
-                    return true;
-                }
-
-                @Override
-                public String getDescription() {
-                    return null;
-                }
-            });
-
-            if ( jfc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION ) {
-                // close the existing game
-
-                final File selectedFile = jfc.getSelectedFile();
-                //start in new thread so that swing thread is not used for game setup
-                new Thread(() -> {
-                    // close the existing game (which ironically will include us)
-                    gameUIManager.hideGame();
-                    // start the new game
-                    GameLoader.loadAndStartGame(selectedFile);
-                }).start();
-            }
-        } else if (command.equals(CLOSE_CMD)) {
-            gameUIManager.closeGame();
         } else if (command.equals(REPORT_CMD)) {
             gameUIManager.reportWindow.setVisible(((JMenuItem) actor.getSource()).isSelected());
             gameUIManager.reportWindow.scrollDown();
@@ -757,12 +761,6 @@ public class StatusWindow extends JFrame implements ActionListener, KeyListener,
             gameUIManager.configWindow.setVisible(((JMenuItem) actor.getSource()).isSelected());
         } else if (command.equals(GAME_CONFIG_CMD)) {
             gameUIManager.gameConfigWindow.setVisible(((JMenuItem) actor.getSource()).isSelected());
-        } else if (command.equals(AUTOSAVELOAD_CMD)) {
-            gameUIManager.autoSaveLoadGame();
-        } else if (command.equals(SAVESTATUS_CMD)) {
-            gameUIManager.saveGameStatus();
-        } else if ( command.equals("Save Logs")) {
-            gameUIManager.saveLogs();
         } else if (executedAction == null) {
             ;
         } else if (executedAction instanceof GameAction) {
