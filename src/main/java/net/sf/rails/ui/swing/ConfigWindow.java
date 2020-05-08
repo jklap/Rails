@@ -22,6 +22,9 @@ class ConfigWindow extends BaseConfigWindow {
 
     private final JPanel profilePanel;
 
+    private JButton saveButton = null;
+
+
     public ConfigWindow(Window parent) {
         super(parent);
 
@@ -44,6 +47,7 @@ class ConfigWindow extends BaseConfigWindow {
     @Override
     public void init(final boolean startUp) {
         setupProfilePanel();
+
         super.init(startUp);
     }
 
@@ -88,28 +92,16 @@ class ConfigWindow extends BaseConfigWindow {
 
         // save button for user profiles
         if (cm.IsActiveUserProfile()) {
-            JButton saveButton = new JButton(LocalText.getText("SAVE"));
-            saveButton.addActionListener(
-                    actionEvent -> ConfigWindow.this.saveConfig()
-            );
+            saveButton = new JButton(LocalText.getText("SAVE"));
+            saveButton.addActionListener(actionEvent -> saveConfig());
+            saveButton.setEnabled(false);
             buttonPanel.add(saveButton);
         }
 
         // save (as) button
         JButton saveAsButton = new JButton(LocalText.getText("SAVEAS"));
-        saveAsButton.addActionListener(
-                actionEvent -> ConfigWindow.this.saveAsNewConfig()
-        );
+        saveAsButton.addActionListener(actionEvent -> saveAsNewConfig());
         buttonPanel.add(saveAsButton);
-
-        JButton resetButton = new JButton(LocalText.getText("RESET"));
-        resetButton.addActionListener(
-                actionEvent -> {
-                    // reset button: revert to activeProfile
-                    changeProfile(cm.getActiveProfile());
-                }
-        );
-        buttonPanel.add(resetButton);
 
         if (cm.IsActiveUserProfile()) {
             JButton deleteButton = new JButton(LocalText.getText("DELETE"));
@@ -128,6 +120,8 @@ class ConfigWindow extends BaseConfigWindow {
             );
             buttonPanel.add(deleteButton);
         }
+
+//        resetButton.addActionListener(actionEvent -> changeProfile(cm.getActiveProfile()));
     }
 
     private void changeProfile(String profileName) {
@@ -195,6 +189,14 @@ class ConfigWindow extends BaseConfigWindow {
             }
         }
         return result;
+    }
+
+    @Override
+    protected void isDirty(ConfigItem configItem) {
+        super.isDirty(configItem);
+        if ( saveButton != null ) {
+            saveButton.setEnabled(true);
+        }
     }
 
     @Override

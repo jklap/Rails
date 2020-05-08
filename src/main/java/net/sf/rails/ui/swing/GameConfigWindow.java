@@ -21,7 +21,6 @@ public class GameConfigWindow extends BaseConfigWindow {
     private final GameConfig config;
 
     private JButton saveButton;
-    private JButton resetButton;
 
     public GameConfigWindow(GameUIManager gameUIManager, Window parent) {
         super(parent);
@@ -32,7 +31,7 @@ public class GameConfigWindow extends BaseConfigWindow {
 
         // configSetup pane
         configPane = new JTabbedPane();
-        add(configPane, "Center");
+        add(configPane, "North");
 
         // buttons
         buttonPanel = new JPanel();
@@ -54,20 +53,9 @@ public class GameConfigWindow extends BaseConfigWindow {
         buttonPanel.removeAll();
 
         saveButton = new JButton(LocalText.getText("SAVE"));
-        saveButton.addActionListener(actionEvent -> GameConfigWindow.this.saveConfig());
+        saveButton.addActionListener(actionEvent -> saveConfig());
         saveButton.setEnabled(false);
         buttonPanel.add(saveButton);
-
-        // reset button: revert to activeProfile
-        resetButton = new JButton(LocalText.getText("RESET"));
-//        resetButton.addActionListener(actionEvent -> changeProfile(cm.getActiveProfile()));
-        resetButton.setEnabled(false);
-        buttonPanel.add(resetButton);
-
-        JButton closeButton = new JButton("Close");
-        closeButton.addActionListener(actionEvent -> GameConfigWindow.this.closeConfig());
-        closeButton.setEnabled(true);
-        buttonPanel.add(closeButton);
     }
 
     private boolean saveConfig() {
@@ -82,7 +70,7 @@ public class GameConfigWindow extends BaseConfigWindow {
             resetButton.setEnabled(false);
             isDirty = false;
         } else {
-            JOptionPane.showMessageDialog(GameConfigWindow.this, LocalText.getText("CONFIG_SAVE_ERROR_MESSAGE", cm.getActiveProfile()),
+            JOptionPane.showMessageDialog(this, LocalText.getText("CONFIG_SAVE_ERROR_MESSAGE", cm.getActiveProfile()),
                     LocalText.getText("CONFIG_SAVE_TITLE"), JOptionPane.ERROR_MESSAGE);
         }
 
@@ -93,7 +81,6 @@ public class GameConfigWindow extends BaseConfigWindow {
     protected void isDirty(ConfigItem configItem) {
         super.isDirty(configItem);
         saveButton.setEnabled(true);
-        resetButton.setEnabled(true);
     }
 
     @Override

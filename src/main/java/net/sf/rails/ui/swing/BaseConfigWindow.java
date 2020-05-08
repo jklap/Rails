@@ -8,6 +8,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -38,9 +39,13 @@ public abstract class BaseConfigWindow extends JFrame  {
 
     protected JPanel buttonPanel;
 
+    protected JButton resetButton;
+
     protected final ConfigManager cm;
 
     protected boolean isDirty = false;
+
+    protected final Map<String, Object> configFields = new HashMap<>();
 
     protected abstract Map<String, List<ConfigItem>> getConfigSections();
 
@@ -59,12 +64,14 @@ public abstract class BaseConfigWindow extends JFrame  {
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
+                boolean doClose = true;
                 if ( isDirty ) {
-                    // TODO: convert to confirm dialog to make sure the user wants to throw away any changes
-                    JOptionPane.showMessageDialog(BaseConfigWindow.this, LocalText.getText("CONFIG_CLOSE_MESSAGE"),
-                            LocalText.getText("CONFIG_CLOSE_TITLE"), JOptionPane.INFORMATION_MESSAGE);
+                    doClose = JOptionPane.showConfirmDialog(BaseConfigWindow.this, LocalText.getText("CONFIG_CLOSE_MESSAGE"),
+                            LocalText.getText("CONFIG_CLOSE_TITLE"), JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION;
                 }
-                closeConfig();
+                if ( doClose ) {
+                    closeConfig();
+                }
             }
         });
     }
@@ -73,9 +80,19 @@ public abstract class BaseConfigWindow extends JFrame  {
         setupConfigPane();
         setupButtonPanel();
 
+        resetButton = new JButton(LocalText.getText("RESET"));
+        resetButton.addActionListener(actionEvent -> resetFields());
+        resetButton.setEnabled(false);
+        buttonPanel.add(resetButton);
+
+        JButton closeButton = new JButton("Close");
+        closeButton.addActionListener(actionEvent -> closeConfig());
+        closeButton.setEnabled(true);
+        buttonPanel.add(closeButton);
+
         SwingUtilities.invokeLater(new Thread(() -> {
             BaseConfigWindow.this.repaint();
-            if (startUp) {
+            if ( startUp ) {
                 BaseConfigWindow.this.setMaximumSize(new Dimension(800, 600));
                 BaseConfigWindow.this.setSize(BaseConfigWindow.this.getPreferredSize());
             }
@@ -164,16 +181,14 @@ public abstract class BaseConfigWindow extends JFrame  {
         switch (item.type) {
             case BOOLEAN:
                 final JCheckBox checkBox = new JCheckBox();
-                boolean selected = Util.parseBoolean(configValue);
-                checkBox.setSelected(selected);
+                checkBox.setSelected(Util.parseBoolean(configValue));
                 checkBox.addFocusListener(new FocusAdapter() {
                     @Override
                     public void focusLost(FocusEvent arg0) {
-                        String newValue = checkBox.isSelected() ? "yes" : "no";
-                        checkAndSet(item, newValue);
+                        checkAndSet(item, checkBox.isSelected() ? "yes" : "no");
                     }
                 });
-                //gbc.fill = GridBagConstraints.HORIZONTAL;
+                gbc.fill = GridBagConstraints.HORIZONTAL;
                 addToGridBag(panel, checkBox, gbc);
                 break;
             case PERCENT: // percent uses a spinner with 5 changes
@@ -194,17 +209,16 @@ public abstract class BaseConfigWindow extends JFrame  {
                     spinnerValue = 0;
                 }
                 final JSpinner spinner = new JSpinner(new SpinnerNumberModel(spinnerValue, Integer.MIN_VALUE, Integer.MAX_VALUE, spinnerStepSize));
-                ((JSpinner.DefaultEditor)spinner.getEditor()).getTextField().
-                        addPropertyChangeListener(propertyChangeEvent -> {
-                            Integer value = (Integer)spinner.getValue();
-                            String newValue = value.toString();
-                            if (item.type == ConfigItem.ConfigType.PERCENT) {
-                                double adjValue = (double)value / spinnerMultiple;
-                                newValue = Double.toString(adjValue);
-                            }
-                            checkAndSet(item, newValue);
+                ((JSpinner.DefaultEditor)spinner.getEditor()).getTextField().addPropertyChangeListener(propertyChangeEvent -> {
+                    Integer value = (Integer)spinner.getValue();
+                    String newValue = value.toString();
+                    if (item.type == ConfigItem.ConfigType.PERCENT) {
+                        double adjValue = (double)value / spinnerMultiple;
+                        newValue = Double.toString(adjValue);
+                    }
+                    checkAndSet(item, newValue);
                 });
-                spinner.setPreferredSize(new Dimension(10, spinner.getPreferredSize().height));
+                spinner.setMinimumSize(new Dimension(10, spinner.getPreferredSize().height));
 //                gbc.fill = GridBagConstraints.HORIZONTAL;
                 addToGridBag(panel, spinner, gbc);
                 addEmptyLabel(panel, gbc);
@@ -217,8 +231,7 @@ public abstract class BaseConfigWindow extends JFrame  {
             case LIST:
                 String[] allowedValues = new String[1];
                 if (item.type == ConfigItem.ConfigType.FONT) {
-                    allowedValues = GraphicsEnvironment.getLocalGraphicsEnvironment().
-                            getAvailableFontFamilyNames();
+                    allowedValues = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
                 } else {
                     allowedValues = item.allowedValues.toArray(allowedValues);
                 }
@@ -228,8 +241,7 @@ public abstract class BaseConfigWindow extends JFrame  {
                 comboBox.addFocusListener(new FocusAdapter() {
                       @Override
                       public void focusLost(FocusEvent arg0) {
-                          String newValue = (String)comboBox.getSelectedItem();
-                          checkAndSet(item, newValue);
+                          checkAndSet(item, (String)comboBox.getSelectedItem());
                       }
                 });
                 gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -245,24 +257,22 @@ public abstract class BaseConfigWindow extends JFrame  {
                 gbc.fill = GridBagConstraints.HORIZONTAL;
                 addToGridBag(panel, dirLabel, gbc);
                 JButton dirButton = new JButton("Choose...");
-                dirButton.addActionListener(
-                        actionEvent -> {
-                            JFileChooser fc = new JFileChooser();
-                            if (item.type == ConfigItem.ConfigType.DIRECTORY) {
-                                fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                            } else {
-                                fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-                            }
-                            fc.setSelectedFile(new File(dirLabel.getText()));
-                            int state = fc.showOpenDialog(BaseConfigWindow.this);
-                            if ( state == JFileChooser.APPROVE_OPTION ){
-                                String newValue = fc.getSelectedFile().getPath();
-                                if ( checkAndSet(item, newValue) ) {
-                                    dirLabel.setText(newValue);
-                                }
-                            }
+                dirButton.addActionListener(actionEvent -> {
+                    JFileChooser fc = new JFileChooser();
+                    if (item.type == ConfigItem.ConfigType.DIRECTORY) {
+                        fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                    } else {
+                        fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                    }
+                    fc.setSelectedFile(new File(dirLabel.getText()));
+                    int state = fc.showOpenDialog(BaseConfigWindow.this);
+                    if ( state == JFileChooser.APPROVE_OPTION ){
+                        String newValue = fc.getSelectedFile().getPath();
+                        if ( checkAndSet(item, newValue) ) {
+                            dirLabel.setText(newValue);
                         }
-                );
+                    }
+                });
                 gbc.fill = GridBagConstraints.NONE;
                 addToGridBag(panel, dirButton, gbc);
                 break;
@@ -335,9 +345,7 @@ public abstract class BaseConfigWindow extends JFrame  {
                     final JOptionPane optionPane = new JOptionPane();
                     optionPane.setMessageType(JOptionPane.INFORMATION_MESSAGE);
                     optionPane.setMessage(infoText);
-                    optionPane.addPropertyChangeListener(JOptionPane.VALUE_PROPERTY,
-                            propertyChangeEvent -> dialog.dispose()
-                    );
+                    optionPane.addPropertyChangeListener(JOptionPane.VALUE_PROPERTY, propertyChangeEvent -> dialog.dispose());
                     dialog.setTitle(LocalText.getText("CONFIG_INFO_TITLE", itemLabel));
                     dialog.getContentPane().add(optionPane);
                     dialog.pack();
@@ -360,8 +368,23 @@ public abstract class BaseConfigWindow extends JFrame  {
         return false;
     }
 
+    protected void resetFields() {
+        for ( Map.Entry<String, Object> entry : configFields.entrySet() ) {
+            String configValue = getConfigValue(entry.getKey());
+
+            if ( entry.getValue() instanceof JCheckBox ) {
+                ((JCheckBox) entry.getValue()).setSelected(Util.parseBoolean(configValue));
+            } else if ( entry.getValue() instanceof JFormattedTextField ) {
+                ((JFormattedTextField)entry.getValue()).setValue(configValue);
+            } else {
+                log.warn("unhandled field for {}: {}", entry.getKey(), entry.getValue().getClass().getName());
+            }
+        }
+    }
+
     protected void isDirty(ConfigItem configItem) {
         isDirty = true;
+        resetButton.setEnabled(true);
     }
 
     protected void repaintLater() {
