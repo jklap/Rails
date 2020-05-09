@@ -82,28 +82,21 @@ public class ORWindow extends DockingFrame implements ActionPerformer {
 
             //initialize remaining tile panel as it is no optional part in the docking layout
             splashWindow.notifyOfStep(SplashWindow.STEP_OR_INIT_TILES);
-            JScrollPane remainingTilesPanelSlider =
-                    new RemainingTilesWindow(this).getScrollPane();
+            JScrollPane remainingTilesPanelSlider = new RemainingTilesWindow(this).getScrollPane();
 
             //generate layout
             splashWindow.notifyOfStep(SplashWindow.STEP_OR_APPLY_DOCKING_FRAME);
-            addDockable ( messagePanelSlider,
-                    "Dockable.orWindow.messagePanel",
+            addDockable ( messagePanelSlider, "Dockable.orWindow.messagePanel",
                     0, 0, 100, 10, DockableProperty.CLOSEABLE);
-            addDockable ( upgradePanel,
-                    "Dockable.orWindow.upgradePanel",
+            addDockable ( upgradePanel, "Dockable.orWindow.upgradePanel",
                     0, 10, 20, 70, DockableProperty.STANDARD);
-            addDockable ( mapPanel,
-                    "Dockable.orWindow.mapPanel",
+            addDockable ( mapPanel, "Dockable.orWindow.mapPanel",
                     20, 10, 80, 70, DockableProperty.STANDARD);
-            addDockable ( remainingTilesPanelSlider,
-                    "Dockable.orWindow.remainingTilesPanel",
+            addDockable ( remainingTilesPanelSlider, "Dockable.orWindow.remainingTilesPanel",
                     100, 0, 120, 100, DockableProperty.INITIALLY_HIDDEN);
-            addDockable ( orPanel,
-                    "Dockable.orWindow.orPanel",
+            addDockable ( orPanel, "Dockable.orWindow.orPanel",
                     0, 80, 100, 15, DockableProperty.STANDARD);
-            addDockable ( orPanel.getButtonPanel(),
-                    "Dockable.orWindow.buttonPanel",
+            addDockable ( orPanel.getButtonPanel(), "Dockable.orWindow.buttonPanel",
                     0, 95, 100, 5, DockableProperty.STANDARD);
             deployDockables();
 
