@@ -35,7 +35,12 @@ public class OpenGamesManager {
     }
 
     public void addGame(GameUIManager gameUIManager) {
-        openGames.put(getGameIdentifier(gameUIManager), gameUIManager);
+        String gameId = getGameIdentifier(gameUIManager);
+        if ( openGames.containsKey(gameId) ) {
+            log.warn("Game '{}' already loaded", gameId);
+            // TODO: not sure what we should do here...
+        }
+        openGames.put(gameId, gameUIManager);
     }
 
     public void addGame(GameUIManager gameUIManager, boolean makeGameActive) {
