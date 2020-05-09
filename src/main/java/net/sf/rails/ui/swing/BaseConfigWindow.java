@@ -77,8 +77,8 @@ public abstract class BaseConfigWindow extends JFrame  {
     }
 
     public void init(final boolean startUp) {
-        setupConfigPane();
         setupButtonPanel();
+        setupConfigPane();
 
         resetButton = new JButton(LocalText.getText("RESET"));
         resetButton.addActionListener(actionEvent -> resetFields());
