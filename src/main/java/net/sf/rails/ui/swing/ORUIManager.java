@@ -93,6 +93,7 @@ public class ORUIManager implements DialogOwner {
     private HexMap map;
     private MessagePanel messagePanel;
     private RemainingTilesWindow remainingTiles;
+    private boolean remainingTilesVisible;
 
     private OperatingRound oRound;
     private List<PublicCompany> companies;
@@ -524,9 +525,7 @@ public class ORUIManager implements DialogOwner {
     /** Stub, can be overridden in subclasses */
     // FIXME: As above, really a list of actions?
     protected boolean processGameSpecificActions(List<PossibleAction> actions) {
-
         return false;
-
     }
 
     protected void setDividend(String command, SetDividend action) {
@@ -1586,6 +1585,21 @@ public class ORUIManager implements DialogOwner {
         } else {
             remainingTiles.activate();
         }
+    }
+
+    public void hideRemainingTilesWindow() {
+        if ( remainingTiles == null ) {
+            return;
+        }
+        remainingTilesVisible = remainingTiles.isVisible();
+        remainingTiles.setVisible(false);
+    }
+
+    public void restoreRemainingTilesWindow() {
+        if ( remainingTiles == null ) {
+            return;
+        }
+        remainingTiles.setVisible(remainingTilesVisible);
     }
 
     // Further Getters

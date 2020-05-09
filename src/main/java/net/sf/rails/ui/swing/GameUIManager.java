@@ -126,6 +126,7 @@ public class GameUIManager implements DialogOwner {
 
     private final Map<JFrame, Boolean> visibleWindows = new HashMap<>();
     private JFrame windowToFront = null;
+    private boolean currentDialogVisible = false;
 
     private boolean isShowing = true;
 
@@ -246,7 +247,12 @@ public class GameUIManager implements DialogOwner {
             gameConfigWindow.setVisible(false);
         }
 
+        if ( orUIManager != null ) {
+            orUIManager.hideRemainingTilesWindow();
+        }
+
         if ( currentDialog != null ) {
+            currentDialogVisible = currentDialog.isVisible();
             currentDialog.setVisible(false);
         }
 
@@ -256,22 +262,6 @@ public class GameUIManager implements DialogOwner {
     public void showGame() {
         if ( isShowing ) {
             return;
-        }
-
-        if ( startRoundWindow != null ) {
-            startRoundWindow.setVisible(visibleWindows.get(startRoundWindow));
-        }
-
-        if ( reportWindow != null ) {
-            reportWindow.setVisible(visibleWindows.get(reportWindow));
-        }
-
-        if ( statusWindow != null ) {
-            statusWindow.setVisible(visibleWindows.get(statusWindow));
-        }
-
-        if ( orWindow != null ) {
-            orWindow.setVisible(visibleWindows.get(orWindow));
         }
 
         if ( stockChartWindow != null ) {
@@ -286,12 +276,32 @@ public class GameUIManager implements DialogOwner {
             gameConfigWindow.setVisible(visibleWindows.get(gameConfigWindow));
         }
 
+        if ( startRoundWindow != null ) {
+            startRoundWindow.setVisible(visibleWindows.get(startRoundWindow));
+        }
+
+        if ( orUIManager != null ) {
+            orUIManager.restoreRemainingTilesWindow();
+        }
+
+        if ( reportWindow != null ) {
+            reportWindow.setVisible(visibleWindows.get(reportWindow));
+        }
+
+        if ( statusWindow != null ) {
+            statusWindow.setVisible(visibleWindows.get(statusWindow));
+        }
+
+        if ( orWindow != null ) {
+            orWindow.setVisible(visibleWindows.get(orWindow));
+        }
+
         if ( windowToFront != null ) {
             windowToFront.toFront();
         }
 
         if ( currentDialog != null ) {
-            currentDialog.setVisible(true);
+            currentDialog.setVisible(currentDialogVisible);
         }
 
         isShowing = true;
