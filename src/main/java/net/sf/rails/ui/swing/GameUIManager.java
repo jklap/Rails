@@ -24,6 +24,7 @@ import java.util.stream.IntStream;
 import javax.swing.*;
 import javax.swing.plaf.FontUIResource;
 
+import net.sf.rails.common.ConfigManager;
 import net.sf.rails.game.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
