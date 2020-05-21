@@ -28,6 +28,7 @@ public class RunGame {
 
         // Initialize configuration
         ConfigManager.initConfiguration(false);
+        log.warn(ConfigManager.getInstance().getBuildDescription());
 
         if ( Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.APP_OPEN_FILE)) {
             Desktop.getDesktop().setOpenFileHandler(e -> {

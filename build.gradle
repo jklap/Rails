@@ -121,7 +121,7 @@ wrapper {
 
 // BuildDate function adapted from http://stackoverflow.com/questions/19172565/how-append-date-build-to-versionnamesuffix-on-gradle
 static def buildDate() {
-    new SimpleDateFormat('yyyy-MM-dd').format(new Date())
+    new SimpleDateFormat('yyyy-MM-dd:HH:mm:ss').format(new Date())
 }
 
 gitProperties {

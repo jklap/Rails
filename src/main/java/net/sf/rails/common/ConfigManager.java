@@ -48,6 +48,8 @@ public class ConfigManager implements Configurable {
 
     private String buildDate = "unknown";
 
+    private Properties versionNumber;
+
     // configuration items: replace with Multimap in Rails 2.0
     private final Map<String, List<ConfigItem>> configSections = new TreeMap<>();
 
@@ -63,6 +65,10 @@ public class ConfigManager implements Configurable {
     }
 
     public static void initConfiguration(boolean test) {
+        if ( instance.initialized ) {
+            return;
+        }
+
         try {
             // Find the config tag inside the the config xml file
             // the last arguments refers to the fact that no GameOptions are required
@@ -150,7 +156,7 @@ public class ConfigManager implements Configurable {
     private void initVersion() {
         // TODO: Check if this is the right place for this
         /* Load version number and develop flag */
-        Properties versionNumber = new Properties();
+        versionNumber = new Properties();
         Util.loadPropertiesFromResource(versionNumber, "git.properties");
 
         String sVersion = versionNumber.getProperty("git.build.version");
@@ -172,6 +178,12 @@ public class ConfigManager implements Configurable {
 
     public String getBuildDate() {
         return buildDate;
+    }
+
+    public String getBuildDescription() {
+        StringBuilder desc = new StringBuilder();
+        desc.append(versionNumber.getProperty("git.commit.id.describe")).append(" built on ").append(versionNumber.getProperty("buildDate"));
+        return desc.toString();
     }
 
     public Map<String, List<ConfigItem>> getConfigSections() {

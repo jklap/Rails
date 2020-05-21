@@ -1346,6 +1346,10 @@ public class GameUIManager implements DialogOwner {
         layout.setPattern("%d{MM-dd-yyyy:HH:mm:ss.SSS} [%thread] %-5level %logger{10}->%method\\(\\):%line - %msg%n");
         layout.start();
 
+        // write out some debug detail for log review
+        log.debug(ConfigManager.getInstance().getBuildDescription());
+
+        // write out detail about
         try {
             PrintWriter writer = new PrintWriter(saveDirectory + "/" +
                     StringUtils.replace(lastSavedFilename, ".rails", "_" + localPlayerName + ".log"));
