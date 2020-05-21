@@ -26,14 +26,13 @@ public class OperatingRound_18AL extends OperatingRound {
     protected void setGameSpecificPossibleActions() {
         // if optimized no need to assign
         if (GameOption.getAsBoolean(this, "18ALOptimizeNamedTrains")) return;
-        
+
         for (NameTrains stl : getSpecialProperties(NameTrains.class)) {
             Set<Train> trains =
                     operatingCompany.value().getPortfolioModel().getTrainList();
             if (trains != null && !trains.isEmpty()) {
                 possibleActions.add(new AssignNamedTrains(stl, trains));
             }
-
         }
     }
 
@@ -44,12 +43,10 @@ public class OperatingRound_18AL extends OperatingRound {
 
             AssignNamedTrains namingAction = (AssignNamedTrains) action;
             List<NameableTrain> trains = namingAction.getNameableTrains();
-            List<NameableTrain> newTrainsPerToken =
-                    namingAction.getPostTrainPerToken();
+            List<NameableTrain> newTrainsPerToken = namingAction.getPostTrainPerToken();
             List<NamedTrainToken> tokens = namingAction.getTokens();
 
-            List<NamedTrainToken> newTokenPerTrain =
-                    new ArrayList<NamedTrainToken>(trains.size());
+            List<NamedTrainToken> newTokenPerTrain = new ArrayList<NamedTrainToken>(trains.size());
 
             NameableTrain newTrain;
             NamedTrainToken oldToken, newToken;
@@ -60,11 +57,8 @@ public class OperatingRound_18AL extends OperatingRound {
             for (int i = 0; i < tokens.size(); i++) {
                 newTrain = newTrainsPerToken.get(i);
                 if (newTrain != null)
-                    newTokenPerTrain.set(trains.indexOf(newTrain),
-                            tokens.get(i));
+                    newTokenPerTrain.set(trains.indexOf(newTrain), tokens.get(i));
             }
-
-            
 
             for (int i = 0; i < trains.size(); i++) {
                 oldToken = trains.get(i).getNameToken();

@@ -1,6 +1,7 @@
 package net.sf.rails.algorithms;
 
 import com.google.common.collect.*;
+import com.google.common.graph.Network;
 import com.mxgraph.layout.mxFastOrganicLayout;
 import com.mxgraph.layout.mxIGraphLayout;
 import com.mxgraph.swing.mxGraphComponent;
@@ -58,8 +59,7 @@ public class NetworkGraph {
         return newGraph;
     }
 
-    public static NetworkGraph createOptimizedGraph(NetworkGraph inGraph,
-                                                    Collection<NetworkVertex> protectedVertices) {
+    public static NetworkGraph createOptimizedGraph(NetworkGraph inGraph, Collection<NetworkVertex> protectedVertices) {
         NetworkGraph newGraph = new NetworkGraph(inGraph);
         newGraph.optimizeGraph(protectedVertices);
         newGraph.rebuildVertices();
@@ -114,8 +114,7 @@ public class NetworkGraph {
         // first create builders for all HexSides
         Map<MapHex, HexSidesSet.Builder> hexSides = Maps.newHashMap();
         for (NetworkVertex vertex : graph.vertexSet()) {
-            if (vertex.isSide() && iterator.getSeenData().get(vertex)
-                    != NetworkIterator.greedyState.GREEDY ) {
+            if (vertex.isSide() && iterator.getSeenData().get(vertex) != NetworkIterator.greedyState.GREEDY ) {
                 MapHex hex = vertex.getHex();
                 if (!hexSides.containsKey(hex)) {
                     hexSides.put(hex, HexSidesSet.builder());
@@ -134,8 +133,7 @@ public class NetworkGraph {
      */
     public Multimap<MapHex, Station> getPassableStations() {
 
-        ImmutableMultimap.Builder<MapHex, Station> hexStations =
-                ImmutableMultimap.builder();
+        ImmutableMultimap.Builder<MapHex, Station> hexStations = ImmutableMultimap.builder();
 
         for (NetworkVertex vertex : graph.vertexSet()) {
             if (vertex.isStation() && !vertex.isSink()) {
@@ -151,8 +149,7 @@ public class NetworkGraph {
      */
     public Multimap<MapHex, Stop> getTokenableStops(PublicCompany company) {
 
-        ImmutableMultimap.Builder<MapHex, Stop> hexStops =
-                ImmutableMultimap.builder();
+        ImmutableMultimap.Builder<MapHex, Stop> hexStops = ImmutableMultimap.builder();
 
         for (NetworkVertex vertex : graph.vertexSet()) {
             Stop stop = vertex.getStop();
@@ -248,8 +245,7 @@ public class NetworkGraph {
                     log.debug("Added deadend vertex {}", otherVertex);
                 }
                 NetworkEdge edge = new NetworkEdge(vertex, otherVertex, true);
-                graph.addEdge(vertex, otherVertex,
-                        edge);
+                graph.addEdge(vertex, otherVertex, edge);
                 log.debug("Added greedy edge {}", edge.getConnection());
             }
         }

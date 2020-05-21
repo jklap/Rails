@@ -423,7 +423,7 @@ public class GameSetupWindow extends JDialog {
 
     protected void setFocus(Integer playerNr) {
         final PlayerInfo focus = players.get(playerNr);
-        EventQueue.invokeLater(() -> focus.name.requestFocusInWindow());
+        EventQueue.invokeLater(focus.name::requestFocusInWindow);
     }
 
     protected boolean areOptionsVisible() {

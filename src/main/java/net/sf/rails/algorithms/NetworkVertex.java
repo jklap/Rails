@@ -17,12 +17,12 @@ public final class NetworkVertex implements Comparable<NetworkVertex> {
 
     private static final Logger log = LoggerFactory.getLogger(NetworkVertex.class);
 
-    public static enum VertexType {
+    public enum VertexType {
         STATION,
         SIDE,
         HQ,
     }
-    public static enum StationType {
+    public enum StationType {
         MAJOR,
         MINOR,
         COALMINE

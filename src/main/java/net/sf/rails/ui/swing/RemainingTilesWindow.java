@@ -29,7 +29,8 @@ import net.sf.rails.ui.swing.elements.Field;
 
 // FIXME: This is a temporary workaround as it does not update the number of tiles
 // replace this with a field again
-public class RemainingTilesWindow extends JFrame implements WindowListener,
+public class
+RemainingTilesWindow extends JFrame implements WindowListener,
         ActionListener {
     private static final long serialVersionUID = 1L;
 

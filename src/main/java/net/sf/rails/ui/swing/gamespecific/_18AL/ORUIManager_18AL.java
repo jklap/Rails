@@ -20,16 +20,14 @@ import net.sf.rails.ui.swing.hexmap.TokenHexUpgrade;
 
 public class ORUIManager_18AL extends ORUIManager {
 
-    
-    
-    protected boolean processGameSpecificActions(List<PossibleAction> actions) {
 
+
+    protected boolean processGameSpecificActions(List<PossibleAction> actions) {
         Class<? extends PossibleAction> actionType = actions.get(0).getClass();
         if (actionType == AssignNamedTrains.class) {
 
             AssignNamedTrains action = (AssignNamedTrains) actions.get(0);
-            NameTrainsDialog dialog =
-                    new NameTrainsDialog(getORWindow(), action);
+            NameTrainsDialog dialog = new NameTrainsDialog(getORWindow(), action);
             dialog.setVisible(true);
 
             boolean changed = dialog.hasChanged();
@@ -47,26 +45,22 @@ public class ORUIManager_18AL extends ORUIManager {
      */
    @Override
     protected void addLocatedTokenLays(LayToken action) {
-  //TODO: Rework for general setup as special property 
-        
+  //TODO: Rework for general setup as special property
+
         if (action instanceof LayBonusToken) { //Special Action from Private Company in 18AL
             PublicCompany company = action.getCompany();
             NetworkGraph graph = networkAdapter.getRouteGraph(company, true);
-            
+
             for (MapHex hex:action.getLocations()) {
-                if (graph.getPassableStations().containsKey(hex) )
-                {
+                if (graph.getPassableStations().containsKey(hex) ) {
                     GUIHex guiHex = orWindow.getMapPanel().getMap().getHex(hex);
-                    TokenHexUpgrade upgrade = TokenHexUpgrade.create(
-                            guiHex, hex.getTokenableStops(action.getCompany()), action);
+                    TokenHexUpgrade upgrade = TokenHexUpgrade.create(guiHex, hex.getTokenableStops(action.getCompany()), action);
                     TokenHexUpgrade.validates(upgrade);
                     hexUpgrades.put(guiHex, upgrade);
-                    continue;
                 }
             }
-        }
-        else {
-        super.addLocatedTokenLays(action);
+        }else {
+         super.addLocatedTokenLays(action);
         }
     }
 }
